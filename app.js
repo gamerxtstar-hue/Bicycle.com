@@ -1,3 +1,4 @@
+
 (function(){
 "use strict";
 
@@ -190,19 +191,23 @@ function initThree(){
 
   var w = window.innerWidth, h = window.innerHeight;
   camera = new THREE.OrthographicCamera(-w/2, w/2, h/2, -h/2, 1, 2000);
-  camera.position.set(0, 220, 620);
-  camera.lookAt(0, -20, 0);
+  camera.position.set(0, 130, 640);
+  camera.lookAt(0, -14, 0);
 
-  var ambient = new THREE.AmbientLight(0xffe6d9, 0.95);
+  var ambient = new THREE.AmbientLight(0x6a5a8a, 0.65);
   scene.add(ambient);
 
-  var key = new THREE.DirectionalLight(0xfff3e8, 1.1);
-  key.position.set(200, 400, 300);
+  var key = new THREE.DirectionalLight(0xffcfa0, 1.25);
+  key.position.set(260, 300, 340);
   scene.add(key);
 
-  var rim = new THREE.DirectionalLight(0x8b6bff, 0.6);
-  rim.position.set(-300, 120, -200);
+  var rim = new THREE.DirectionalLight(0xff8a5c, 0.9);
+  rim.position.set(-260, 160, -280);
   scene.add(rim);
+
+  var fill = new THREE.DirectionalLight(0x8fa6ff, 0.35);
+  fill.position.set(-100, -60, 200);
+  scene.add(fill);
 
   engineLight = new THREE.PointLight(0xff6a45, 0.6, 260);
   engineLight.position.set(0, -10, 0);
@@ -221,103 +226,282 @@ function onThreeResize(){
   camera.updateProjectionMatrix();
 }
 
+/* ---------- procedural textures ---------- */
+function buildBrainTexture(){
+  var c = document.createElement('canvas');
+  c.width = 512; c.height = 512;
+  var ctx = c.getContext('2d');
+
+  var base = ctx.createLinearGradient(0, 0, 512, 512);
+  base.addColorStop(0, '#e9b9ad');
+  base.addColorStop(0.5, '#e2a89b');
+  base.addColorStop(1, '#d99a8d');
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // soft mottled shading blotches (sulci shadow hints)
+  for (var i = 0; i < 90; i++){
+    var bx = Math.random() * 512, by = Math.random() * 512;
+    var br = 14 + Math.random() * 46;
+    var g = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+    var dark = Math.random() > 0.5;
+    g.addColorStop(0, dark ? 'rgba(140,70,60,0.16)' : 'rgba(255,220,205,0.18)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // branching veins
+  function vein(x, y, ang, len, width, depth){
+    ctx.strokeStyle = 'rgba(90,60,130,' + (0.28 - depth * 0.05) + ')';
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    var px = x, py = y;
+    var segs = 5 + Math.floor(Math.random() * 4);
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    for (var s = 0; s < segs; s++){
+      ang += (Math.random() - 0.5) * 0.9;
+      px += Math.cos(ang) * (len / segs);
+      py += Math.sin(ang) * (len / segs);
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    if (depth < 2 && Math.random() > 0.35){
+      vein(px, py, ang + (Math.random() - 0.5) * 1.4, len * 0.6, Math.max(0.6, width * 0.6), depth + 1);
+    }
+  }
+  for (var v = 0; v < 22; v++){
+    vein(Math.random() * 512, Math.random() * 512, Math.random() * Math.PI * 2, 60 + Math.random() * 80, 1.4 + Math.random() * 1.4, 0);
+  }
+
+  var tex = new THREE.CanvasTexture(c);
+  return tex;
+}
+
+function buildTireTexture(){
+  var c = document.createElement('canvas');
+  c.width = 256; c.height = 96;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle = '#0c0b10';
+  ctx.fillRect(0, 0, 256, 96);
+  var blocks = 28;
+  for (var i = 0; i < blocks; i++){
+    var x = (i / blocks) * 256;
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillRect(x, 10, 256 / blocks * 0.5, 76);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(x + 256 / blocks * 0.5, 10, 256 / blocks * 0.18, 76);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, 0, 256, 6);
+  ctx.fillRect(0, 90, 256, 6);
+  var tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  return tex;
+}
+
+function buildWheelFaceTexture(){
+  var c = document.createElement('canvas');
+  c.width = 256; c.height = 256;
+  var ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 256, 256);
+  var cx = 128, cy = 128;
+
+  var outer = ctx.createRadialGradient(cx, cy, 70, cx, cy, 122);
+  outer.addColorStop(0, '#3a3d46');
+  outer.addColorStop(1, '#111218');
+  ctx.fillStyle = outer;
+  ctx.beginPath(); ctx.arc(cx, cy, 122, 0, Math.PI * 2); ctx.fill();
+
+  var spokes = 5;
+  for (var i = 0; i < spokes; i++){
+    var a = (i / spokes) * Math.PI * 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a);
+    var g = ctx.createLinearGradient(0, -110, 0, -30);
+    g.addColorStop(0, '#c9cdd6');
+    g.addColorStop(1, '#5a5d68');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(-9, -108);
+    ctx.lineTo(9, -108);
+    ctx.lineTo(15, -30);
+    ctx.lineTo(-15, -30);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  var hub = ctx.createRadialGradient(cx, cy, 4, cx, cy, 34);
+  hub.addColorStop(0, '#e7e9ee');
+  hub.addColorStop(1, '#4a4d57');
+  ctx.fillStyle = hub;
+  ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#20222a';
+  ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+
+  return new THREE.CanvasTexture(c);
+}
+
+/* ---------- helix spring curve ---------- */
+function HelixCurve(radius, height, turns){
+  THREE.Curve.call(this);
+  this.radius = radius;
+  this.height = height;
+  this.turns = turns;
+}
+HelixCurve.prototype = Object.create(THREE.Curve.prototype);
+HelixCurve.prototype.constructor = HelixCurve;
+HelixCurve.prototype.getPoint = function(t){
+  var angle = t * Math.PI * 2 * this.turns;
+  var x = Math.cos(angle) * this.radius;
+  var z = Math.sin(angle) * this.radius;
+  var y = t * this.height - this.height / 2;
+  return new THREE.Vector3(x, y, z);
+};
+
+/* beam mesh stretched between two points, e.g. control arms */
+function beamBetween(p1, p2, thickness, mat){
+  var dir = new THREE.Vector3().subVectors(p2, p1);
+  var len = dir.length();
+  var mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+  var geo = new THREE.BoxGeometry(len, thickness, thickness);
+  var mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(mid);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir.clone().normalize());
+  return mesh;
+}
+
 /* ---------- build the brain-car mesh ---------- */
 function buildCar(){
   carGroup = new THREE.Group();
+  var metalMat = new THREE.MeshStandardMaterial({ color: 0x2a2c34, roughness: 0.4, metalness: 0.75 });
+  var darkMat  = new THREE.MeshStandardMaterial({ color: 0x121218, roughness: 0.55, metalness: 0.5 });
 
-  // --- BRAIN BODY ---
-  var geo = new THREE.IcosahedronGeometry(48, 4);
+  // --- BRAIN BODY (anatomical, glossy, low + wide like the reference) ---
+  var geo = new THREE.IcosahedronGeometry(50, 5);
   var pos = geo.attributes.position;
   var v = new THREE.Vector3();
   for (var i = 0; i < pos.count; i++){
     v.fromBufferAttribute(pos, i);
     var n = v.clone().normalize();
-    var freq = 2.6;
-    var noise = Math.sin(n.x * freq * 2.1 + n.y * 3.3) * 0.5
-              + Math.sin(n.y * freq * 3.1 + n.z * 1.7) * 0.32
-              + Math.sin(n.z * freq * 2.4 + n.x * 2.9) * 0.22;
+    var freq = 3.4;
+    var noise = Math.sin(n.x * freq * 2.4 + n.y * 4.1) * 0.5
+              + Math.sin(n.y * freq * 3.6 + n.z * 2.3) * 0.34
+              + Math.sin(n.z * freq * 2.9 + n.x * 3.7) * 0.26
+              + Math.sin((n.x + n.y) * freq * 5.2) * 0.14;
     var groove = 0;
-    if (Math.abs(n.x) < 0.16){
-      groove = -0.42 * (1 - Math.abs(n.x) / 0.16);
+    if (Math.abs(n.x) < 0.14){
+      groove = -0.5 * (1 - Math.abs(n.x) / 0.14);
     }
-    var displaced = 1 + (noise * 0.11) + groove * 0.11;
-    v.copy(n).multiplyScalar(48 * displaced);
+    var displaced = 1 + (noise * 0.15) + groove * 0.13;
+    v.copy(n).multiplyScalar(50 * displaced);
     pos.setXYZ(i, v.x, v.y, v.z);
   }
   geo.computeVertexNormals();
 
-  var brainMat = new THREE.MeshStandardMaterial({
-    color: 0xa88cff,
-    roughness: 0.38,
-    metalness: 0.1,
-    emissive: 0x4a35a0,
-    emissiveIntensity: 0.22
+  var brainTex = buildBrainTexture();
+  var brainMat = new THREE.MeshPhysicalMaterial({
+    map: brainTex,
+    roughness: 0.32,
+    metalness: 0,
+    clearcoat: 0.9,
+    clearcoatRoughness: 0.22,
+    sheen: 1,
+    sheenColor: new THREE.Color(0xffb6a3)
   });
   brainMesh = new THREE.Mesh(geo, brainMat);
-  brainMesh.position.y = 26;
-  brainMesh.scale.set(1, 0.86, 1.02);
+  brainMesh.position.y = 14;
+  brainMesh.scale.set(1.15, 0.72, 0.98);
   carGroup.add(brainMesh);
 
-  // --- CHASSIS PLATE ---
-  var chassisGeo = new THREE.BoxGeometry(112, 10, 76, 2, 1, 2);
-  var chassisMat = new THREE.MeshStandardMaterial({ color: 0x1c1726, roughness: 0.5, metalness: 0.45 });
-  var chassis = new THREE.Mesh(chassisGeo, chassisMat);
-  chassis.position.y = -6;
-  carGroup.add(chassis);
+  // small sensor / camera bump on top, front
+  var sensorBase = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 12), darkMat);
+  sensorBase.position.set(18, 46, 0);
+  carGroup.add(sensorBase);
+  var lens = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 4, 12), metalMat);
+  lens.rotation.z = Math.PI / 2;
+  lens.position.set(24, 46, 0);
+  carGroup.add(lens);
 
-  // --- WHEELS ---
-  var wheelGeo = new THREE.CylinderGeometry(20, 20, 16, 20);
-  wheelGeo.rotateZ(Math.PI / 2);
-  var wheelMat = new THREE.MeshStandardMaterial({ color: 0x14111c, roughness: 0.7, metalness: 0.3 });
-  var discGeo = new THREE.TorusGeometry(11, 2, 8, 20);
-  var discMat = new THREE.MeshStandardMaterial({ color: 0xff6a45, emissive: 0xff6a45, emissiveIntensity: 0.95, roughness: 0.3 });
+  // slim headlight bar, low front
+  var hlMat = new THREE.MeshStandardMaterial({ color: 0xfff6ea, emissive: 0xfff2df, emissiveIntensity: 1.8 });
+  var headlight = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 30), hlMat);
+  headlight.position.set(62, -4, 0);
+  carGroup.add(headlight);
+
+  // tiny ember taillight, low rear
+  var tlMat = new THREE.MeshStandardMaterial({ color: 0xff5a36, emissive: 0xff5a36, emissiveIntensity: 1.2 });
+  var taillight = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 26), tlMat);
+  taillight.position.set(-62, -2, 0);
+  carGroup.add(taillight);
+
+  // --- UNDERBODY SPINE ---
+  var spine = new THREE.Mesh(new THREE.BoxGeometry(120, 8, 14), metalMat);
+  spine.position.set(0, -10, 0);
+  carGroup.add(spine);
+
+  // --- WHEELS + EXPOSED SUSPENSION ---
+  var tireTex = buildTireTexture();
+  var tireMat = new THREE.MeshStandardMaterial({ map: tireTex, roughness: 0.85, metalness: 0.05 });
+  var wheelGeo = new THREE.CylinderGeometry(24, 24, 17, 28);
+  wheelGeo.rotateX(Math.PI / 2);
+
+  var faceTex = buildWheelFaceTexture();
+  var faceMat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.4, metalness: 0.7 });
+  var faceGeo = new THREE.CircleGeometry(19.5, 24);
+
+  var springMat = new THREE.MeshStandardMaterial({ color: 0xb9bdc8, roughness: 0.35, metalness: 0.85 });
 
   var offsets = [
-    { x:  44, z:  34, front: true  },
-    { x:  44, z: -34, front: true  },
-    { x: -44, z:  34, front: false },
-    { x: -44, z: -34, front: false }
+    { x:  46, z:  40, front: true  },
+    { x:  46, z: -40, front: true  },
+    { x: -46, z:  36, front: false },
+    { x: -46, z: -36, front: false }
   ];
 
   offsets.forEach(function(o){
-    var wheel = new THREE.Mesh(wheelGeo, wheelMat);
-    wheel.position.set(o.x, -18, o.z);
-    var disc = new THREE.Mesh(discGeo, discMat);
-    disc.rotation.y = Math.PI / 2;
-    disc.position.set(o.x + (o.z > 0 ? 8.5 : -8.5), -18, o.z);
+    var side = o.z > 0 ? 1 : -1;
+
+    var wheel = new THREE.Mesh(wheelGeo, tireMat);
+    wheel.position.set(o.x, -20, o.z);
     carGroup.add(wheel);
-    carGroup.add(disc);
-    wheels.push({ mesh: wheel, front: o.front, side: o.z > 0 ? 1 : -1, offset: o });
-  });
 
-  // --- HEADLIGHTS ---
-  var lightGeo = new THREE.SphereGeometry(4, 12, 12);
-  var lightMat = new THREE.MeshStandardMaterial({ color: 0xfff6ea, emissive: 0xfff6ea, emissiveIntensity: 1.5 });
-  [ -18, 18 ].forEach(function(z){
-    var hl = new THREE.Mesh(lightGeo, lightMat);
-    hl.position.set(58, 6, z);
-    carGroup.add(hl);
-  });
+    var faceOuter = new THREE.Mesh(faceGeo, faceMat);
+    faceOuter.position.set(0, 0, side * 8.6);
+    faceOuter.rotation.y = side > 0 ? 0 : Math.PI;
+    wheel.add(faceOuter);
 
-  // --- SPOILER ---
-  var spoilerGeo = new THREE.BoxGeometry(4, 14, 66);
-  var spoilerMat = new THREE.MeshStandardMaterial({ color: 0x201a30, roughness: 0.5 });
-  var spoiler = new THREE.Mesh(spoilerGeo, spoilerMat);
-  spoiler.position.set(-56, 22, 0);
-  carGroup.add(spoiler);
-  var strutGeo = new THREE.BoxGeometry(3, 16, 3);
-  [ -22, 22 ].forEach(function(z){
-    var strut = new THREE.Mesh(strutGeo, spoilerMat);
-    strut.position.set(-56, 10, z);
-    carGroup.add(strut);
+    // coil spring
+    var spring = new THREE.Mesh(new THREE.TubeGeometry(new HelixCurve(9, 26, 4.2), 60, 1.7, 8, false), springMat);
+    spring.position.set(o.x, -6, o.z * 0.72);
+    carGroup.add(spring);
+
+    // damper body through the coil
+    var damper = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 30, 8), metalMat);
+    damper.position.set(o.x, -6, o.z * 0.72);
+    carGroup.add(damper);
+
+    // lower control arm from spine to hub
+    var arm = beamBetween(
+      new THREE.Vector3(o.x * 0.35, -12, 0),
+      new THREE.Vector3(o.x, -20, o.z),
+      3.4, metalMat
+    );
+    carGroup.add(arm);
+
+    wheels.push({ mesh: wheel, front: o.front, side: side, offset: o });
   });
 
   // soft grounding shadow
   var shadowTex = buildShadowTexture();
   var shadowMat = new THREE.SpriteMaterial({ map: shadowTex, transparent: true, opacity: 0.45, depthWrite: false });
   var shadowSprite = new THREE.Sprite(shadowMat);
-  shadowSprite.scale.set(170, 70, 1);
-  shadowSprite.position.y = -30;
+  shadowSprite.scale.set(190, 78, 1);
+  shadowSprite.position.y = -34;
   carGroup.add(shadowSprite);
 
   carGroup.scale.setScalar(carScaleForViewport());
@@ -449,7 +633,7 @@ function updateCar(dt, elapsed){
   // wheel spin
   var spin = (dScroll * 0.02) + carState.smoothSpeed * 0.15 + 0.02;
   wheels.forEach(function(w){
-    w.mesh.rotation.x += spin;
+    w.mesh.rotation.z += spin;
   });
 
   // engine light pulse tied to speed
