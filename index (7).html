@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexovar.ai — Intelligence, Engineered</title>
+<meta name="description" content="Nexovar.ai builds applied AI systems that ship into production — agents, copilots and pipelines engineered for real workloads.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0b0e;
+    --bg-soft: #101218;
+    --line: rgba(245,244,240,0.10);
+    --ink: #f5f4f0;
+    --ink-dim: #9396a1;
+    --violet: #7c5cff;
+    --cyan: #46e0c8;
+    --amber: #ffb454;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; background:var(--bg); }
+  body{
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow-x:hidden;
+  }
+  ::selection{ background: var(--violet); color:#fff; }
+  h1,h2,h3,.display{ font-family:'Space Grotesk', sans-serif; letter-spacing:-0.02em; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  /* nav */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 40px;
+    backdrop-filter: blur(10px);
+    background: linear-gradient(to bottom, rgba(10,11,14,0.85), transparent);
+  }
+  .logo{ display:flex; align-items:center; gap:10px; font-weight:600; font-size:18px; }
+  .logo-mark{ display:block; flex-shrink:0; } .logo{ display:flex; align-items:center; gap:8px; } .accent{ background:linear-gradient(90deg, var(--violet), var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .navlinks{ display:flex; gap:36px; font-size:14px; color:var(--ink-dim); }
+  .navlinks a:hover{ color:var(--ink); }
+  .navcta{
+    border:1px solid var(--line); padding:9px 18px; border-radius:100px;
+    font-size:13px; transition:all .25s ease;
+  }
+  .navcta:hover{ border-color:var(--cyan); color:var(--cyan); }
+  @media (max-width:860px){ .navlinks{ display:none; } }
+
+  /* hero */
+  .hero{
+    position:relative; min-height:100svh; display:flex; flex-direction:column;
+    justify-content:center; padding-top:90px;
+  }
+  #scene{ position:fixed; inset:0; z-index:-1; opacity:0; transition:opacity 1.4s ease; pointer-events:none; }
+  #scene.ready{ opacity:1; }
+  .hero-grid{
+    position:absolute; inset:0; z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
+  }
+  .hero-content{ position:relative; z-index:2; text-align:center; pointer-events:none; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.08em;
+    color:var(--cyan); border:1px solid rgba(70,224,200,0.3); background:rgba(70,224,200,0.06);
+    padding:6px 14px; border-radius:100px; margin-bottom:28px;
+  }
+  .hero h1{
+    font-size: clamp(32px, 7vw, 92px);
+    line-height:0.98; font-weight:600;
+  }
+  .hero h1 em{ font-style:normal; color:var(--violet); }
+  .hero p.lead{
+    max-width:620px; margin:26px auto 0; font-size:clamp(15px,2.5vw,18px); color:var(--ink-dim); line-height:1.6;
+  }
+  .hero-ctas{ display:flex; gap:14px; justify-content:center; margin-top:38px; pointer-events:all; flex-wrap:wrap; }
+  .btn{
+    padding:14px 28px; border-radius:100px; font-size:14px; font-weight:500;
+    transition:all .25s ease; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{ background:var(--ink); color:var(--bg); }
+  .btn-primary:hover{ background:var(--cyan); transform:translateY(-2px); }
+  .btn-ghost{ border:1px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--ink-dim); }
+  .scroll-cue{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-dim);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    z-index:2;
+  }
+  .scroll-cue .line{ width:1px; height:36px; background:linear-gradient(var(--cyan), transparent); animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:.3 } 50%{ opacity:1 } }
+
+  /* marquee */
+  .marquee{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:18px 0; overflow:hidden; white-space:nowrap;
+    background: rgba(16,18,24,0.55);
+    backdrop-filter: blur(12px);
+  }
+  .marquee-track{ display:inline-block; animation: scroll 28s linear infinite; }
+  .marquee span{
+    font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--ink-dim);
+    margin:0 28px; letter-spacing:0.03em;
+  }
+  @keyframes scroll{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+
+  section{ padding:100px 0; position:relative; }
+  .section-head{ max-width:640px; margin-bottom:72px; }
+  .section-tag{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--violet);
+    letter-spacing:0.08em; margin-bottom:18px; display:block;
+  }
+  .section-head h2{ font-size:clamp(24px,4vw,46px); font-weight:600; line-height:1.1; }
+  .section-head p{ color:var(--ink-dim); font-size:17px; margin-top:18px; line-height:1.6; }
+
+  /* capability grid — translucent so 3D shows through */
+  .cap-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(245,244,240,0.07); border:1px solid var(--line); }
+  .cap-card{ background:rgba(10,11,14,0.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); padding:40px 34px; transition:background .3s ease; }
+  .cap-card:hover{ background:rgba(16,18,24,0.72); }
+  .cap-num{ font-family:'JetBrains Mono', monospace; color:var(--ink-dim); font-size:12px; }
+  .cap-card h3{ font-size:21px; margin:18px 0 12px; font-weight:600; }
+  .cap-card p{ color:var(--ink-dim); font-size:14.5px; line-height:1.65; }
+  @media (max-width:860px){ .cap-grid{ grid-template-columns:1fr; } }
+
+  /* process — translucent */
+  .process{ background:rgba(16,18,24,0.5); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .process-list{ display:flex; flex-direction:column; }
+  .pstep{
+    display:grid; grid-template-columns:90px 1fr; gap:32px; padding:34px 0;
+    border-top:1px solid var(--line); align-items:start;
+  }
+  .pstep:last-child{ border-bottom:1px solid var(--line); }
+  .pstep .pnum{ font-family:'JetBrains Mono', monospace; color:var(--violet); font-size:14px; padding-top:4px; }
+  .pstep h3{ font-size:20px; margin-bottom:8px; font-weight:600; }
+  .pstep p{ color:var(--ink-dim); font-size:15px; max-width:520px; line-height:1.6; }
+  @media (max-width:640px){ .pstep{ grid-template-columns:1fr; gap:10px; } }
+
+  /* stats — translucent */
+  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(245,244,240,0.07); border:1px solid var(--line); }
+  .stat{ background:rgba(10,11,14,0.5); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); padding:38px 28px; text-align:left; }
+  .stat .num{ font-family:'Space Grotesk',sans-serif; font-size:38px; font-weight:700; color:var(--cyan); }
+  .stat .lbl{ color:var(--ink-dim); font-size:13px; margin-top:8px; }
+  @media (max-width:860px){ .stats{ grid-template-columns:repeat(2,1fr); } }
+
+  /* cta */
+  .cta-section{ text-align:center; }
+  .cta-section h2{ font-size:clamp(24px,5vw,58px); font-weight:600; max-width:760px; margin:0 auto; line-height:1.1; }
+  .cta-section p{ color:var(--ink-dim); margin:22px auto 36px; max-width:480px; }
+
+  footer{ border-top:1px solid var(--line); padding:60px 0 40px; background:rgba(10,11,14,0.7); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+  .foot-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:40px; }
+  .foot-brand p{ color:var(--ink-dim); font-size:14px; max-width:280px; margin-top:14px; line-height:1.6; }
+  .foot-cols{ display:flex; gap:64px; flex-wrap:wrap; }
+  .foot-col h4{ font-size:13px; color:var(--ink-dim); margin-bottom:14px; font-weight:500; }
+  .foot-col a{ display:block; font-size:14px; color:var(--ink); opacity:0.8; margin-bottom:10px; }
+  .foot-col a:hover{ opacity:1; color:var(--cyan); }
+  .foot-bottom{ margin-top:60px; padding-top:24px; border-top:1px solid var(--line); display:flex; justify-content:space-between; font-size:12px; color:var(--ink-dim); flex-wrap:wrap; gap:12px; }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .8s ease, transform .8s ease; }
+  .reveal.in{ opacity:1; transform:none; }
+
+  /* nav — translucent glass */
+  nav{ background:rgba(10,11,14,0.65) !important; backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important; }
+
+  /* mobile */
+  @media (max-width:480px){
+    nav{ padding:16px 20px; }
+    .hero p.lead{ font-size:14px; padding:0 8px; }
+    .btn{ padding:12px 20px; font-size:13px; }
+    .wrap{ padding:0 18px; }
+    .foot-cols{ gap:32px; }
+    section{ padding:72px 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><svg class="logo-mark" width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="lgA" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#46e0c8"/></linearGradient></defs>
+        <line x1="10" y1="10" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="30" y1="10" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="10" y1="30" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="30" y1="30" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <circle cx="20" cy="20" r="5" fill="#8b6bff"/>
+        <circle cx="10" cy="10" r="3.5" fill="#7c5cff"/>
+        <circle cx="30" cy="10" r="3.5" fill="#46e0c8"/>
+        <circle cx="10" cy="30" r="3.5" fill="#46e0c8"/>
+        <circle cx="30" cy="30" r="3.5" fill="#7c5cff"/>
+      </svg>Nexovar<span class="accent">.ai</span></div>
+  <div class="navlinks">
+    <a href="#capabilities">Capabilities</a>
+    <a href="#process">Process</a>
+    <a href="careers.html">Careers</a>
+    <a href="contributor.html">Contribute</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <a href="contact.html" class="navcta">Talk to us</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div id="scene"></div>
+  <div class="hero-content wrap">
+    <span class="eyebrow">● Human Data Collection for AI Agents</span>
+    <h1>Real Data.<br><em>Real Agents.</em></h1>
+    <p class="lead">Powering AI with Trusted Human Intelligence — delivering secure, scalable, and high-quality AI data services for businesses building the future of artificial intelligence.</p>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn btn-primary">Start a project →</a>
+      <a href="about.html" class="btn btn-ghost">About us</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>SCROLL</span><span class="line"></span></div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>AGENTIC WORKFLOWS</span><span>·</span><span>LLM INFRASTRUCTURE</span><span>·</span><span>COMPUTER VISION</span><span>·</span><span>RAG PIPELINES</span><span>·</span><span>MODEL FINE-TUNING</span><span>·</span><span>MLOPS</span><span>·</span>
+    <span>AGENTIC WORKFLOWS</span><span>·</span><span>LLM INFRASTRUCTURE</span><span>·</span><span>COMPUTER VISION</span><span>·</span><span>RAG PIPELINES</span><span>·</span><span>MODEL FINE-TUNING</span><span>·</span><span>MLOPS</span><span>·</span>
+  </div>
+</div>
+
+<section id="capabilities">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">// CAPABILITIES</span>
+      <h2>One studio, the full stack of applied AI.</h2>
+      <p>From the first prototype to the system running in your production environment — we build, evaluate and operate it.</p>
+    </div>
+    <div class="cap-grid reveal">
+      <div class="cap-card"><span class="cap-num">01</span><h3>Agent Systems</h3><p>Autonomous and human-in-the-loop agents that plan, call tools, and complete multi-step work reliably.</p></div>
+      <div class="cap-card"><span class="cap-num">02</span><h3>Data Collection</h3><p>Audio, video, text and image data sourced and labeled at scale, by a vetted network with domain expertise.</p></div>
+      <div class="cap-card"><span class="cap-num">03</span><h3>RAG & Knowledge</h3><p>Retrieval systems grounded in your own data, with citations and guardrails your team can trust.</p></div>
+      <div class="cap-card"><span class="cap-num">04</span><h3>Fine-Tuning</h3><p>Domain-adapted models trained on your workflows, evaluated against the metrics that matter to you.</p></div>
+      <div class="cap-card"><span class="cap-num">05</span><h3>Data Annotation & QA</h3><p>Multi-pass labeling and quality review pipelines that keep training data accurate at scale.</p></div>
+      <div class="cap-card"><span class="cap-num">06</span><h3>MLOps & Scale</h3><p>Monitoring, retraining loops and infrastructure that keep your models accurate after launch day.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="process" class="process">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="section-tag">// HOW WE WORK</span>
+      <h2>A short path from idea to production.</h2>
+    </div>
+    <div class="process-list reveal">
+      <div class="pstep"><span class="pnum">01</span><div><h3>Scope the problem</h3><p>We sit with your team to define the workflow worth automating and the metric that proves it worked.</p></div></div>
+      <div class="pstep"><span class="pnum">02</span><div><h3>Prototype fast</h3><p>A working version in your environment within two weeks, built on real data, not a synthetic demo.</p></div></div>
+      <div class="pstep"><span class="pnum">03</span><div><h3>Evaluate honestly</h3><p>We measure accuracy, latency and cost against your baseline before anyone calls it done.</p></div></div>
+      <div class="pstep"><span class="pnum">04</span><div><h3>Ship and operate</h3><p>We deploy into your stack and stay on to monitor, retrain and improve the system over time.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><div class="num">40+</div><div class="lbl">Systems shipped to production</div></div>
+      <div class="stat"><div class="num">12</div><div class="lbl">Industries served</div></div>
+      <div class="stat"><div class="num">99.95%</div><div class="lbl">Average uptime maintained</div></div>
+      <div class="stat"><div class="num">6wk</div><div class="lbl">Median time to first deploy</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="cta-section">
+  <div class="wrap reveal">
+    <span class="section-tag">// LET'S BUILD</span>
+    <h2>Tell us what you're trying to automate.</h2>
+    <p>Book a 30-minute call with our team. We'll tell you honestly whether AI is the right tool for it.</p>
+    <div class="hero-ctas" style="justify-content:center;">
+      <a href="contact.html" class="btn btn-primary">Go to contact page →</a>
+      <a href="tel:+917985518104" class="btn btn-ghost">+91 79855 18104</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo"><svg class="logo-mark" width="26" height="26" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="lgA" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#46e0c8"/></linearGradient></defs>
+        <line x1="10" y1="10" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="30" y1="10" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="10" y1="30" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <line x1="30" y1="30" x2="20" y2="20" stroke="url(#lgA)" stroke-width="2"/>
+        <circle cx="20" cy="20" r="5" fill="#8b6bff"/>
+        <circle cx="10" cy="10" r="3.5" fill="#7c5cff"/>
+        <circle cx="30" cy="10" r="3.5" fill="#46e0c8"/>
+        <circle cx="10" cy="30" r="3.5" fill="#46e0c8"/>
+        <circle cx="30" cy="30" r="3.5" fill="#7c5cff"/>
+      </svg>Nexovar<span class="accent">.ai</span></div>
+        <p>An applied AI systems studio — agents, infrastructure and pipelines built for production, not demos.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col"><h4>STUDIO</h4><a href="#capabilities">Capabilities</a><a href="#process">Process</a><a href="careers.html">Careers</a></div>
+        <div class="foot-col"><h4>COMPANY</h4><a href="about.html">About</a><a href="contributor.html">Contribute</a><a href="contact.html">Contact</a></div>
+        <div class="foot-col"><h4>CONNECT</h4><a href="mailto:here.nexovar.ai@gmail.com">Email</a><a href="tel:+917985518104">+91 79855 18104</a><a href="#">LinkedIn</a></div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Nexovar.ai. All rights reserved.</span>
+      <span>Built with intent.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:0.15 });
+  revealEls.forEach(el=>io.observe(el));
+
+
+
+  // ─── NEXOVAR.AI — Premium Global Data Network Globe ───────────────────────
+  // A slowly rotating Earth with glowing data arcs shooting between world cities,
+  // animated particles riding each arc, atmospheric glow, and cursor drag to spin.
+  // Scrolls deeper/closer as the user moves down the page.
+  (function(){
+    const container = document.getElementById('scene');
+    if(!window.THREE) return;
+    try{
+    const isMobile = window.innerWidth < 768;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ── Renderer + Camera ──────────────────────────────────────────────────
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x06070d, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth/window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0.8, 7.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias:!isMobile, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile?1.5:2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    // ── Lighting ──────────────────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0x1a1a3a, 1.2));
+    const sun = new THREE.DirectionalLight(0x9b8fff, 2.2);
+    sun.position.set(5, 3, 5); scene.add(sun);
+    const rim = new THREE.PointLight(0x46e0c8, 6, 30, 2);
+    rim.position.set(-6, -2, -4); scene.add(rim);
+    const fill = new THREE.PointLight(0x7c5cff, 4, 20, 2);
+    fill.position.set(3, 5, 2); scene.add(fill);
+
+    // ── Procedural Earth Texture ──────────────────────────────────────────
+    function buildEarthTex(){
+      const W=1024, H=512;
+      const c=document.createElement('canvas'); c.width=W; c.height=H;
+      const ctx=c.getContext('2d');
+
+      // Deep ocean base — dark teal-blue
+      const ocean=ctx.createLinearGradient(0,0,W,H);
+      ocean.addColorStop(0,'#050d1a'); ocean.addColorStop(1,'#071422');
+      ctx.fillStyle=ocean; ctx.fillRect(0,0,W,H);
+
+      // Simplified continent outlines (latlon → pixel, roughly)
+      function ll(lat,lon){ return [((lon+180)/360)*W, ((90-lat)/180)*H]; }
+      ctx.fillStyle='#152238';
+      // North America
+      ctx.beginPath(); let p=ll(70,-140);
+      ctx.moveTo(...p);
+      [ll(70,-70),ll(60,-65),ll(45,-53),ll(25,-80),ll(10,-85),ll(8,-77),
+       ll(32,-117),ll(49,-125),ll(60,-140),ll(70,-140)].forEach(pt=>ctx.lineTo(...pt));
+      ctx.fill();
+      // South America
+      ctx.beginPath(); p=ll(12,-72);
+      [ll(12,-72),ll(8,-62),ll(-5,-35),ll(-35,-57),ll(-55,-68),ll(-20,-70),ll(0,-78),ll(12,-72)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+      // Europe
+      ctx.beginPath(); p=ll(70,30);
+      [ll(70,30),ll(60,28),ll(50,40),ll(37,36),ll(36,5),ll(44,-8),ll(52,-8),ll(60,5),ll(70,30)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+      // Africa
+      ctx.beginPath();
+      [ll(37,10),ll(37,36),ll(12,44),ll(0,42),ll(-35,28),ll(-30,16),ll(0,-5),ll(15,-17),ll(37,10)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+      // Asia
+      ctx.beginPath();
+      [ll(70,30),ll(70,180),ll(25,122),ll(8,98),ll(25,68),ll(12,44),ll(37,36),ll(50,40),ll(60,28),ll(70,30)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+      // India
+      ctx.beginPath();
+      [ll(30,68),ll(8,77),ll(8,80),ll(25,88),ll(35,78),ll(30,68)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+      // Australia
+      ctx.beginPath();
+      [ll(-17,122),ll(-18,146),ll(-38,148),ll(-38,114),ll(-25,113),ll(-17,122)]
+      .forEach((pt,i)=>i===0?ctx.moveTo(...pt):ctx.lineTo(...pt));
+      ctx.fill();
+
+      // subtle grid lines (lat/lon)
+      ctx.strokeStyle='rgba(70,224,200,0.04)'; ctx.lineWidth=1;
+      for(let la=-80;la<=80;la+=20){
+        const [,y]=ll(la,0); ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+      }
+      for(let lo=-180;lo<=180;lo+=30){
+        const [x]=ll(0,lo); ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    // ── Globe ─────────────────────────────────────────────────────────────
+    const globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+
+    const RADIUS = 2.6;
+    const earthGeo = new THREE.SphereGeometry(RADIUS, isMobile?48:80, isMobile?48:80);
+    const earthMat = new THREE.MeshStandardMaterial({
+      map: buildEarthTex(),
+      metalness:0.12, roughness:0.72,
+      emissiveMap: buildEarthTex(), emissive:new THREE.Color(0x0a2240), emissiveIntensity:0.35
+    });
+    const earth = new THREE.Mesh(earthGeo, earthMat);
+    globeGroup.add(earth);
+
+    // Atmosphere — additive glow shell
+    const atmGeo = new THREE.SphereGeometry(RADIUS*1.05, 32, 32);
+    const atmMat = new THREE.MeshBasicMaterial({
+      color:0x46e0c8, transparent:true, opacity:0.055,
+      side:THREE.BackSide, blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    globeGroup.add(new THREE.Mesh(atmGeo, atmMat));
+    // second outer haze in violet
+    const atmGeo2 = new THREE.SphereGeometry(RADIUS*1.12, 32, 32);
+    const atmMat2 = new THREE.MeshBasicMaterial({
+      color:0x7c5cff, transparent:true, opacity:0.03,
+      side:THREE.BackSide, blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    globeGroup.add(new THREE.Mesh(atmGeo2, atmMat2));
+
+    // ── Data City Nodes ───────────────────────────────────────────────────
+    // [lat, lon, label]
+    const CITIES = [
+      [40.7,-74,'NYC'],[51.5,-0.1,'London'],[48.8,2.3,'Paris'],
+      [55.7,37.6,'Moscow'],[19.1,72.9,'Mumbai'],[28.6,77.2,'Delhi'],
+      [1.3,103.8,'Singapore'],[35.7,139.7,'Tokyo'],[-33.9,151.2,'Sydney'],
+      [37.6,-122.4,'SanFran'],[41.9,12.5,'Rome'],[-23.5,-46.6,'SaoPaulo'],
+      [30.0,31.2,'Cairo'],[6.5,3.4,'Lagos'],[-1.3,36.8,'Nairobi'],
+      [25.2,55.3,'Dubai'],[22.5,88.3,'Kolkata'],[31.2,121.5,'Shanghai']
+    ];
+
+    function latLonToVec3(lat, lon, r){
+      const phi   = (90-lat)*Math.PI/180;
+      const theta = (lon+180)*Math.PI/180;
+      return new THREE.Vector3(
+        -r*Math.sin(phi)*Math.cos(theta),
+         r*Math.cos(phi),
+         r*Math.sin(phi)*Math.sin(theta)
+      );
+    }
+
+    const nodeMat = new THREE.MeshBasicMaterial({ color:0x46e0c8, blending:THREE.AdditiveBlending, depthWrite:false });
+    const nodeGeo = new THREE.SphereGeometry(0.045, 10, 10);
+    const nodeGlowMat = new THREE.SpriteMaterial({ color:0x46e0c8, transparent:true, opacity:0.75, blending:THREE.AdditiveBlending, depthWrite:false });
+
+    // glow dot texture
+    const dotC=document.createElement('canvas'); dotC.width=dotC.height=64;
+    const dotCtx=dotC.getContext('2d');
+    const dg=dotCtx.createRadialGradient(32,32,0,32,32,32);
+    dg.addColorStop(0,'rgba(70,224,200,1)'); dg.addColorStop(1,'rgba(70,224,200,0)');
+    dotCtx.fillStyle=dg; dotCtx.fillRect(0,0,64,64);
+    nodeGlowMat.map=new THREE.CanvasTexture(dotC);
+
+    const nodePositions = CITIES.map(([lat,lon])=>latLonToVec3(lat,lon,RADIUS));
+    nodePositions.forEach(pos=>{
+      const dot = new THREE.Mesh(nodeGeo, nodeMat);
+      dot.position.copy(pos);
+      earth.add(dot);
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({...nodeGlowMat}));
+      glow.scale.set(0.3,0.3,1);
+      glow.position.copy(pos);
+      earth.add(glow);
+    });
+
+    // ── Animated Data Arcs ────────────────────────────────────────────────
+    const ARC_PAIRS = [
+      [0,1],[1,2],[0,5],[3,8],[4,7],[5,6],[6,7],[1,10],[2,9],
+      [11,0],[12,1],[13,14],[15,4],[16,7],[17,6],[9,7],[3,2],[4,1]
+    ];
+    const NPTS = 60;
+
+    function buildArc(i1, i2){
+      const a = nodePositions[i1].clone();
+      const b = nodePositions[i2].clone();
+      const mid = a.clone().lerp(b, 0.5).normalize().multiplyScalar(RADIUS*1.55);
+      const pts = [];
+      for(let t=0;t<=1;t+=1/NPTS){
+        const q = new THREE.QuadraticBezierCurve3(a, mid, b);
+        pts.push(q.getPoint(t));
+      }
+      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      const mat = new THREE.LineBasicMaterial({
+        color: Math.random()>0.5 ? 0x46e0c8 : 0x9b7dff,
+        transparent:true, opacity:0.18+Math.random()*0.18,
+        blending:THREE.AdditiveBlending, depthWrite:false
+      });
+      return { line: new THREE.Line(geo, mat), pts, mat };
+    }
+
+    const arcs = ARC_PAIRS.map(([i,j])=>buildArc(i,j));
+    arcs.forEach(a=>earth.add(a.line));
+
+    // Animated particles traveling along arcs
+    const particleMat = new THREE.PointsMaterial({
+      color:0xffffff, size:0.07, transparent:true, opacity:0.95,
+      blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true
+    });
+    const arcParticles = arcs.map(arc=>{
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3),3));
+      const pts = new THREE.Points(pGeo, new THREE.PointsMaterial({...particleMat, color: arc.mat.color}));
+      earth.add(pts);
+      return { pts, pGeo, progress: Math.random(), speed: 0.003+Math.random()*0.005 };
+    });
+
+    // ── Background Star Field ─────────────────────────────────────────────
+    const starCount = isMobile?600:1200;
+    const starPos = new Float32Array(starCount*3);
+    for(let i=0;i<starCount;i++){
+      const r=60+Math.random()*80, th=Math.random()*Math.PI*2, ph=Math.random()*Math.PI;
+      starPos[i*3]  =r*Math.sin(ph)*Math.cos(th);
+      starPos[i*3+1]=r*Math.cos(ph);
+      starPos[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+    }
+    const starGeo=new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+      color:0xffffff, size:0.18, transparent:true, opacity:0.55,
+      blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true
+    })));
+
+    // ── Big Halo Sprite behind globe ──────────────────────────────────────
+    const hC=document.createElement('canvas'); hC.width=hC.height=512;
+    const hCtx=hC.getContext('2d');
+    const hg=hCtx.createRadialGradient(256,256,0,256,256,256);
+    hg.addColorStop(0,'rgba(124,92,255,0.5)'); hg.addColorStop(0.5,'rgba(70,224,200,0.18)'); hg.addColorStop(1,'rgba(70,224,200,0)');
+    hCtx.fillStyle=hg; hCtx.fillRect(0,0,512,512);
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:new THREE.CanvasTexture(hC), transparent:true, opacity:0.6,
+      blending:THREE.AdditiveBlending, depthWrite:false
+    }));
+    halo.scale.set(12,12,1); halo.position.z=-0.5;
+    globeGroup.add(halo);
+
+    // ── Cursor/Touch Drag ─────────────────────────────────────────────────
+    let dragX=0,dragY=0,autoY=0,isDragging=false,lastTX=0,lastTY=0,velX=0;
+    function onMove(cx,cy){
+      if(!isDragging) return;
+      velX=(cx-lastTX)*0.008; dragX+=(cx-lastTX)*0.008;
+      dragY+=(cy-lastTY)*0.005; dragY=Math.max(-0.7,Math.min(0.7,dragY));
+      lastTX=cx; lastTY=cy;
+    }
+    window.addEventListener('mousedown', e=>{isDragging=true;lastTX=e.clientX;lastTY=e.clientY;});
+    window.addEventListener('mouseup',   ()=>{isDragging=false;});
+    window.addEventListener('mousemove', e=>onMove(e.clientX,e.clientY));
+    window.addEventListener('touchstart', e=>{isDragging=true;lastTX=e.touches[0].clientX;lastTY=e.touches[0].clientY;},{passive:true});
+    window.addEventListener('touchend',   ()=>{isDragging=false;},{passive:true});
+    window.addEventListener('touchmove',  e=>{onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+
+    // ── Scroll ────────────────────────────────────────────────────────────
+    let scrollProgress=0;
+    function updateScroll(){
+      const max=document.documentElement.scrollHeight-window.innerHeight;
+      scrollProgress=max>0?Math.min(1,window.scrollY/max):0;
+    }
+    window.addEventListener('scroll',updateScroll,{passive:true});
+    window.addEventListener('resize',()=>{
+      camera.aspect=window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth,window.innerHeight);
+      updateScroll();
+    });
+    updateScroll();
+
+    // ── Animate ───────────────────────────────────────────────────────────
+    const clock=new THREE.Clock();
+    function animate(){
+      requestAnimationFrame(animate);
+      const t=clock.getElapsedTime();
+
+      // inertia
+      if(!isDragging){ velX*=0.96; dragX+=velX; }
+
+      // auto slow drift
+      autoY = t*0.04;
+
+      // globe spin: auto + drag
+      earth.rotation.y = autoY + dragX;
+      globeGroup.rotation.x = dragY*0.6;
+
+      // scroll: globe moves up and zooms in slightly as user scrolls
+      globeGroup.position.y = 0.5 - scrollProgress*3.5;
+      globeGroup.scale.setScalar(1 + scrollProgress*0.35);
+
+      // lights orbit
+      if(!prefersReduced){
+        fill.position.x=Math.sin(t*0.35)*5;
+        fill.position.z=Math.cos(t*0.35)*5;
+      }
+
+      // animated arc particles
+      arcParticles.forEach((ap,i)=>{
+        ap.progress+=ap.speed;
+        if(ap.progress>1) ap.progress=0;
+        const idx=Math.floor(ap.progress*(NPTS-1));
+        const pt=arcs[i].pts[Math.min(idx,NPTS-1)];
+        if(pt){
+          ap.pGeo.attributes.position.setXYZ(0,pt.x,pt.y,pt.z);
+          ap.pGeo.attributes.position.needsUpdate=true;
+        }
+        ap.pts.material.opacity=0.7+Math.sin(t*3+i)*0.3;
+      });
+
+      // node glow pulse
+      earth.children.forEach((c,i)=>{
+        if(c.isSprite){ c.material.opacity=0.55+Math.sin(t*2.2+i*0.8)*0.45; }
+      });
+
+      // halo breathe
+      halo.material.opacity=0.52+Math.sin(t*0.55)*0.1;
+
+      renderer.render(scene,camera);
+    }
+    animate();
+    requestAnimationFrame(()=>container.classList.add('ready'));
+    }catch(err){ console.error('3D err:',err); container.style.display='none'; }
+  })();
+
+</script>
+</body>
+</html>
