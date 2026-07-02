@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindrift — Every model needs a driver</title>
+<meta name="description" content="Mindrift connects verified domain experts with frontier AI labs to train, evaluate, and correct the models shaping tomorrow.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sky-top:     #f7efe4;
+  --sky-mid:     #f3d9d3;
+  --sky-horizon: #dcb2cf;
+  --ground-1:    #a980cf;
+  --ground-2:    #5d3fae;
+  --ground-3:    #241a3d;
+  --ground-4:    #120d1f;
+
+  --ink:      #241c33;
+  --ink-dim:  #5c5570;
+  --ink-soft: #8a83a0;
+
+  --paper:      #fffdfa;
+  --glass:      rgba(255,255,255,0.5);
+  --glass-line: rgba(36,28,51,0.12);
+
+  --white:    #f7f5ff;
+  --white-dim:#c9c3de;
+  --dark-glass: rgba(20,15,32,0.45);
+  --dark-glass-line: rgba(255,255,255,0.14);
+
+  --ember: #ff6a45;
+  --ember-2:#ffb37a;
+  --violet: #8b6bff;
+  --violet-2:#5d3fae;
+
+  --f-display: 'Space Grotesk', sans-serif;
+  --f-body:    'Inter', sans-serif;
+  --f-mono:    'JetBrains Mono', monospace;
+
+  --container: 1220px;
+  --pad: clamp(20px, 5vw, 56px);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  background:var(--sky-top);
+  color:var(--ink);
+}
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+ul{ list-style:none; }
+::selection{ background:var(--violet); color:#fff; }
+button{ font-family:inherit; border:none; background:none; cursor:pointer; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+}
+
+/* ============ SCENE GRADIENT (spans full doc height) ============ */
+#scene-gradient{
+  position:absolute; top:0; left:0; width:100%; z-index:0; pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    var(--sky-top) 0%,
+    var(--sky-mid) 10%,
+    var(--sky-horizon) 20%,
+    var(--ground-1) 34%,
+    var(--ground-2) 52%,
+    var(--ground-3) 74%,
+    var(--ground-4) 100%
+  );
+}
+#scene-gradient::before{
+  content:''; position:absolute; inset:0;
+  background-image:
+    radial-gradient(ellipse 700px 300px at 18% 6%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 85% 3%, rgba(255,200,190,.35), transparent 60%);
+}
+
+/* ============ LAYOUT UTIL ============ */
+.container{ max-width:var(--container); margin:0 auto; padding-left:var(--pad); padding-right:var(--pad); position:relative; z-index:2; }
+.section{ position:relative; padding:clamp(64px,10vw,120px) 0; }
+.eyebrow{
+  font-family:var(--f-mono); font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  display:inline-flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.zone-light .eyebrow{ color:var(--ember); }
+.zone-dark  .eyebrow{ color:var(--ember-2); }
+.eyebrow::before{ content:''; width:16px; height:1px; background:currentColor; display:inline-block; opacity:.8; }
+h1,h2,h3{ font-family:var(--f-display); font-weight:600; letter-spacing:-.01em; }
+.section-head{ max-width:620px; margin-bottom:52px; }
+.section-head h2{ font-size:clamp(26px,3.8vw,42px); line-height:1.14; }
+.zone-light .section-head p{ color:var(--ink-dim); }
+.zone-dark  .section-head p{ color:var(--white-dim); }
+.section-head p{ font-size:16.5px; margin-top:14px; max-width:500px; }
+
+/* reveal-on-scroll */
+.reveal{ opacity:0; transform:translateY(26px); transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+.reveal-stagger > *{ opacity:0; transform:translateY(20px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+.reveal-stagger.is-visible > *{ opacity:1; transform:translateY(0); }
+.reveal-stagger.is-visible > *:nth-child(1){ transition-delay:.02s; }
+.reveal-stagger.is-visible > *:nth-child(2){ transition-delay:.09s; }
+.reveal-stagger.is-visible > *:nth-child(3){ transition-delay:.16s; }
+.reveal-stagger.is-visible > *:nth-child(4){ transition-delay:.23s; }
+.reveal-stagger.is-visible > *:nth-child(5){ transition-delay:.30s; }
+.reveal-stagger.is-visible > *:nth-child(6){ transition-delay:.37s; }
+
+/* ============ ZONES ============ */
+.zone-dark{ color:var(--white); }
+
+/* ============ BUTTONS (pill) ============ */
+.btn{
+  font-family:var(--f-body); font-weight:600; font-size:14.5px;
+  padding:14px 26px; border-radius:100px; display:inline-flex; align-items:center; gap:8px;
+  cursor:pointer; border:1.5px solid transparent; transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .35s, background .35s, color .35s;
+  white-space:nowrap;
+}
+.btn-solid-dark{ background:var(--ink); color:#fff; }
+.btn-solid-dark:hover{ transform:translateY(-2px); box-shadow:0 14px 28px -10px rgba(36,28,51,.5); }
+.btn-solid-light{ background:#fff; color:var(--ink); }
+.btn-solid-light:hover{ transform:translateY(-2px); box-shadow:0 14px 28px -10px rgba(0,0,0,.25); }
+.btn-outline-light{ background:rgba(255,255,255,.14); color:#fff; border-color:rgba(255,255,255,.55); backdrop-filter:blur(6px); }
+.btn-outline-light:hover{ background:rgba(255,255,255,.28); transform:translateY(-2px); }
+.btn-outline-dark{ background:rgba(255,255,255,.4); color:var(--ink); border-color:rgba(36,28,51,.25); backdrop-filter:blur(6px); }
+.btn-outline-dark:hover{ background:rgba(255,255,255,.7); transform:translateY(-2px); }
+.btn-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+
+/* ============ NAV ============ */
+.nav{
+  position:fixed; top:18px; left:0; right:0; z-index:120;
+  padding:0 var(--pad);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo{ display:flex; align-items:center; gap:9px; font-family:var(--f-display); font-weight:700; font-size:19px; letter-spacing:-.01em; color:var(--ink); }
+.nav.on-dark .logo{ color:#fff; }
+.logo-wheel{ width:22px; height:22px; flex:none; }
+
+.nav-pill{
+  display:flex; align-items:center; gap:26px;
+  background:rgba(255,255,255,.55); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:100px; padding:11px 26px;
+  box-shadow:0 8px 30px -12px rgba(36,28,51,.25);
+  transition:background .4s, border-color .4s;
+}
+.nav.on-dark .nav-pill{ background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.22); }
+.nav-pill a{ font-size:14px; color:var(--ink-dim); font-weight:500; display:flex; align-items:center; gap:4px; }
+.nav.on-dark .nav-pill a{ color:rgba(255,255,255,.82); }
+.nav-pill a:hover{ color:var(--ink); }
+.nav.on-dark .nav-pill a:hover{ color:#fff; }
+.chev{ width:9px; height:9px; opacity:.55; }
+
+.nav-right{ display:flex; align-items:center; gap:14px; }
+.nav-link-ghost{ font-size:14px; font-weight:500; color:var(--ink-dim); }
+.nav.on-dark .nav-link-ghost{ color:rgba(255,255,255,.8); }
+@media (max-width:900px){ .nav-pill{ display:none; } .nav-link-ghost{ display:none; } }
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100svh; position:relative; display:flex; flex-direction:column; justify-content:flex-end;
+  padding-top:140px; padding-bottom:64px; overflow:hidden;
+}
+.hero-glow{
+  position:absolute; left:50%; top:38%; width:min(900px,90vw); height:420px; transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center, rgba(255,255,255,.6), transparent 65%);
+  filter:blur(10px); pointer-events:none; z-index:1;
+}
+.hero-inner{ max-width:640px; position:relative; z-index:3; }
+.hero h1{
+  font-size:clamp(38px,6.4vw,72px); line-height:1.02; letter-spacing:-.02em; color:var(--ink);
+}
+.hero h1 em{ font-style:normal; color:var(--ember); }
+.hero p{ color:var(--ink-dim); font-size:clamp(16px,1.5vw,18.5px); max-width:480px; margin:20px 0 32px; }
+
+/* floating glass orbs */
+.orb{
+  position:absolute; border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,255,255,.95), rgba(255,255,255,.08) 40%, rgba(255,255,255,.02) 60%),
+    radial-gradient(circle at 65% 70%, rgba(139,107,255,.25), transparent 60%);
+  box-shadow: inset 0 0 30px rgba(255,255,255,.4), 0 20px 40px -18px rgba(93,63,174,.4);
+  backdrop-filter: blur(2px);
+  z-index:2;
+  animation: orbFloat 7s ease-in-out infinite;
+}
+.orb-1{ width:96px; height:96px; left:9%; top:34%; animation-delay:0s; }
+.orb-2{ width:56px; height:56px; left:80%; top:56%; animation-delay:1.4s; }
+.orb-3{ width:38px; height:38px; left:22%; top:64%; animation-delay:2.6s; }
+@keyframes orbFloat{
+  0%,100%{ transform:translateY(0) }
+  50%{ transform:translateY(-18px) }
+}
+@media (max-width:720px){ .orb-1{ left:4%; top:20%; width:60px; height:60px; } .orb-2{ display:none; } .orb-3{ left:80%; top:20%; } }
+
+/* stat badge (top-right floating card) */
+.floating-badge{
+  position:absolute; top:150px; right:var(--pad); z-index:4;
+  background:rgba(255,255,255,.55); backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.7); border-radius:18px;
+  padding:14px 16px; text-align:center; box-shadow:0 16px 34px -16px rgba(36,28,51,.3);
+  writing-mode:vertical-rl; text-orientation:mixed;
+}
+.floating-badge .n{ font-family:var(--f-display); font-weight:700; font-size:15px; color:var(--ink); }
+.floating-badge .l{ font-family:var(--f-mono); font-size:9.5px; letter-spacing:.08em; color:var(--ink-dim); margin-top:6px; text-transform:uppercase; }
+@media (max-width:720px){ .floating-badge{ display:none; } }
+
+/* scroll cue glass card */
+.scroll-card{
+  position:absolute; bottom:60px; right:var(--pad); z-index:4;
+  background:linear-gradient(135deg, rgba(139,107,255,.85), rgba(93,63,174,.85));
+  backdrop-filter:blur(10px);
+  color:#fff; border-radius:20px; padding:18px 20px;
+  display:flex; align-items:center; gap:14px;
+  box-shadow:0 20px 40px -16px rgba(93,63,174,.55);
+  max-width:200px;
+}
+.scroll-card p{ font-family:var(--f-display); font-size:14.5px; line-height:1.3; font-weight:500; }
+.scroll-card .arrow{ width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; flex:none; animation:arrowBob 1.6s ease-in-out infinite; }
+@keyframes arrowBob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(4px);} }
+@media (max-width:640px){ .scroll-card{ display:none; } }
+
+/* ============ ROAD LAYER (in-flow, spans full doc — glowing drift trail) ============ */
+#road-layer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+#road-layer svg{ width:100%; height:100%; display:block; }
+.road-base{ fill:none; stroke:rgba(255,255,255,.28); stroke-width:2; stroke-dasharray:1 16; stroke-linecap:round; }
+.road-skid{ fill:none; stroke:var(--ember-2); stroke-width:2.5; stroke-linecap:round; opacity:.55; filter:blur(.4px); }
+
+/* ============ INTRO STRIP ============ */
+.intro p{
+  font-family:var(--f-display); font-weight:500; font-size:clamp(21px,3.2vw,34px); line-height:1.35;
+  max-width:880px; color:var(--ink);
+}
+.intro p .dim{ color:var(--ink-soft); }
+
+/* ============ CHECKPOINTS ============ */
+.checkpoints{ display:flex; flex-direction:column; gap:16px; }
+.checkpoint{
+  display:grid; grid-template-columns:1fr; gap:16px; padding:30px 30px; align-items:start;
+  background:var(--glass); border:1px solid var(--glass-line); border-radius:22px;
+  backdrop-filter:blur(10px);
+}
+.cp-num{ font-family:var(--f-mono); font-size:12.5px; color:var(--ember); letter-spacing:.08em; }
+.cp-body h3{ font-size:clamp(19px,2.4vw,24px); margin:8px 0 8px; color:var(--ink); }
+.cp-body p{ color:var(--ink-dim); max-width:520px; font-size:15px; }
+@media (min-width:760px){ .checkpoint{ grid-template-columns:160px 1fr; gap:36px; padding:34px 38px; } }
+
+/* ============ DOMAINS ============ */
+.domain-grid{ display:flex; flex-wrap:wrap; gap:11px; }
+.domain-chip{
+  font-family:var(--f-mono); font-size:12.5px; color:var(--ink-dim);
+  background:var(--glass); border:1px solid var(--glass-line); border-radius:100px;
+  padding:11px 19px; display:flex; align-items:center; gap:9px;
+  backdrop-filter:blur(8px);
+  transition:border-color .3s, color .3s, transform .3s, background .3s;
+}
+.domain-chip:hover{ border-color:var(--violet); color:var(--ink); transform:translateY(-2px); background:rgba(255,255,255,.8); }
+.domain-chip span{ color:var(--ink-soft); }
+
+/* ============ STATS (dark zone) ============ */
+.stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--dark-glass-line); border:1px solid var(--dark-glass-line); border-radius:20px; overflow:hidden; }
+.stat{ background:var(--dark-glass); backdrop-filter:blur(10px); padding:34px 26px; }
+.stat .num{ font-family:var(--f-display); font-weight:700; font-size:clamp(30px,4.2vw,46px); }
+.stat:nth-child(odd) .num{ color:var(--violet); }
+.stat:nth-child(even) .num{ color:var(--ember-2); }
+.stat .label{ font-family:var(--f-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--white-dim); margin-top:8px; }
+@media (min-width:760px){ .stats{ grid-template-columns:repeat(4,1fr); } }
+
+/* ============ TWO LANES (dark zone) ============ */
+.lanes{ display:grid; grid-template-columns:1fr; gap:20px; }
+@media (min-width:820px){ .lanes{ grid-template-columns:1fr 1fr; } }
+.lane{ background:var(--dark-glass); backdrop-filter:blur(10px); border:1px solid var(--dark-glass-line); border-radius:24px; padding:36px 32px; }
+.lane-tag{ font-family:var(--f-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; }
+.lane.lane-labs .lane-tag{ color:var(--violet); }
+.lane.lane-experts .lane-tag{ color:var(--ember-2); }
+.lane h3{ font-size:23px; margin:12px 0 10px; }
+.lane p{ color:var(--white-dim); font-size:14.5px; margin-bottom:20px; }
+.lane ul{ margin-bottom:24px; }
+.lane li{ display:flex; gap:10px; font-size:14px; color:var(--white-dim); padding:6px 0; }
+.lane li::before{ content:'—'; color:var(--ember-2); flex:none; }
+
+/* ============ TESTIMONIAL (dark zone) ============ */
+.testimonial{ max-width:740px; margin:0 auto; text-align:center; }
+.testimonial .mark{ font-family:var(--f-display); font-size:60px; color:var(--violet); line-height:1; opacity:.7; }
+.testimonial blockquote{ font-family:var(--f-display); font-weight:500; font-size:clamp(19px,2.6vw,28px); line-height:1.4; color:#fff; }
+.testimonial cite{ display:block; margin-top:24px; font-family:var(--f-mono); font-size:12.5px; color:var(--white-dim); font-style:normal; }
+
+/* ============ FINAL CTA (dark zone) ============ */
+.cta-panel{
+  background:linear-gradient(160deg, rgba(139,107,255,.22), rgba(255,106,69,.14));
+  border:1px solid var(--dark-glass-line); border-radius:28px; padding:clamp(44px,7vw,88px) clamp(22px,6vw,64px);
+  text-align:center; backdrop-filter:blur(14px);
+}
+.cta-panel h2{ font-size:clamp(28px,4.6vw,50px); color:#fff; }
+.cta-panel p{ color:var(--white-dim); max-width:460px; margin:16px auto 30px; font-size:15.5px; }
+.cta-panel .btn-row{ justify-content:center; }
+
+/* ============ FOOTER (dark zone) ============ */
+footer{ padding:56px 0 32px; }
+.foot-top{ display:grid; grid-template-columns:1fr; gap:36px; margin-bottom:48px; }
+@media (min-width:760px){ .foot-top{ grid-template-columns:1.4fr repeat(4,1fr); } }
+.foot-brand .logo{ color:#fff; }
+.foot-brand p{ color:var(--white-dim); font-size:13.5px; margin-top:10px; max-width:230px; }
+.foot-col h4{ font-family:var(--f-mono); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--white-dim); margin-bottom:14px; }
+.foot-col a{ display:block; font-size:14px; color:rgba(255,255,255,.72); padding:5px 0; transition:color .25s; }
+.foot-col a:hover{ color:#fff; }
+.foot-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:24px; border-top:1px solid var(--dark-glass-line); }
+.foot-bottom p{ font-size:11.5px; color:var(--white-dim); font-family:var(--f-mono); }
+
+/* ============ CHAT BUBBLE ============ */
+.chat-bubble{
+  position:fixed; bottom:26px; right:26px; z-index:130;
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg, var(--ember), var(--violet));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 16px 32px -12px rgba(93,63,174,.6);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+}
+.chat-bubble:hover{ transform:scale(1.08) rotate(-6deg); }
+.chat-bubble svg{ width:24px; height:24px; }
+
+/* ============ CAR CANVAS ============ */
+#car-canvas{
+  position:fixed; inset:0; width:100vw; height:100vh; z-index:50;
+  pointer-events:none;
+  filter:drop-shadow(0 16px 20px rgba(20,10,35,.35));
+}
+</style>
+</head>
+<body>
+
+<!-- ============ SCENE GRADIENT ============ -->
+<div id="scene-gradient" aria-hidden="true"></div>
+
+<!-- ============ ROAD LAYER ============ -->
+<div id="road-layer" aria-hidden="true">
+  <svg preserveAspectRatio="none">
+    <path class="road-base" id="road-base-path" d=""></path>
+    <path class="road-skid" id="road-skid-path" d=""></path>
+  </svg>
+</div>
+
+<!-- ============ DRIFTING BRAIN-CAR ============ -->
+<canvas id="car-canvas" aria-hidden="true"></canvas>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <a href="#top" class="logo">
+    <svg class="logo-wheel" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="var(--ember)"/>
+      <path d="M12 2.5V6M12 18V21.5M2.5 12H6M18 12H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Mindrift
+  </a>
+  <div class="nav-pill">
+    <a href="#how">Platform <svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+    <a href="#domains">Domains <svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+    <a href="#lanes">For labs <svg class="chev" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></a>
+    <a href="#apply">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-link-ghost">Community</a>
+    <a href="#lanes" class="btn btn-outline-dark">Talk to us</a>
+    <a href="#apply" class="btn btn-solid-dark">Apply now</a>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero container zone-light">
+    <div class="hero-glow"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="floating-badge">
+      <div class="n">10,000+</div>
+      <div class="l">Verified experts</div>
+    </div>
+
+    <div class="scroll-card">
+      <p>Scroll down<br>&amp; watch it drift</p>
+      <div class="arrow">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v11M2 8l5 5 5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="hero-inner">
+      <p class="eyebrow">AI training — human driven</p>
+      <h1>Every model<br>needs a <em>driver.</em></h1>
+      <p>Mindrift puts verified domain experts behind the wheel of frontier AI — writing the hard prompts, judging the close calls, and correcting the line the model should have taken.</p>
+      <div class="btn-row">
+        <a href="#apply" class="btn btn-solid-dark">Apply as an expert</a>
+        <a href="#lanes" class="btn btn-outline-dark">For AI labs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INTRO STRIP ============ -->
+  <section class="intro container zone-light" style="padding:20px 0 60px;">
+    <p class="reveal">Raw internet data teaches a model to autocomplete the internet. <span class="dim">It takes a doctor, a lawyer, a linguist, an engineer — someone who has actually done the job — to teach it to be right.</span></p>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="section container zone-light" id="how">
+    <div class="section-head reveal">
+      <p class="eyebrow">The line</p>
+      <h2>Four checkpoints,<br>one correction at a time</h2>
+      <p>Every project runs the same tight loop — from the first hard question to the version a model is actually held to.</p>
+    </div>
+
+    <div class="checkpoints">
+      <div class="checkpoint reveal">
+        <div class="cp-num">01 — PROMPT</div>
+        <div class="cp-body"><h3>Set the corner</h3><p>Experts write the questions a model actually struggles with — realistic, specific, and hard in the way real work is hard.</p></div>
+      </div>
+      <div class="checkpoint reveal">
+        <div class="cp-num">02 — EVALUATE</div>
+        <div class="cp-body"><h3>Judge the line</h3><p>Specialists grade model responses against a professional bar, not a vibe — rank, compare, and flag what only expertise would catch.</p></div>
+      </div>
+      <div class="checkpoint reveal">
+        <div class="cp-num">03 — CORRECT</div>
+        <div class="cp-body"><h3>Redraw the line</h3><p>Where the model missed the mark, an expert rewrites the ideal response — setting the standard the next version has to reach.</p></div>
+      </div>
+      <div class="checkpoint reveal">
+        <div class="cp-num">04 — DEPLOY</div>
+        <div class="cp-body"><h3>Feed it back</h3><p>Refined data feeds straight into training and evaluation, hardening frontier models long before they reach a user.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOMAINS ============ -->
+  <section class="section container zone-light" id="domains" style="padding-top:0;">
+    <div class="section-head reveal">
+      <p class="eyebrow">The garage</p>
+      <h2>A garage full of specialists</h2>
+      <p>50+ domains, 15+ languages, one platform — every project matched to someone who's actually done the work.</p>
+    </div>
+    <div class="domain-grid reveal-stagger">
+      <div class="domain-chip"><span>01</span>Medicine</div>
+      <div class="domain-chip"><span>02</span>Law</div>
+      <div class="domain-chip"><span>03</span>Finance</div>
+      <div class="domain-chip"><span>04</span>Software Engineering</div>
+      <div class="domain-chip"><span>05</span>Life Sciences</div>
+      <div class="domain-chip"><span>06</span>Linguistics</div>
+      <div class="domain-chip"><span>07</span>Mathematics</div>
+      <div class="domain-chip"><span>08</span>Creative Writing</div>
+      <div class="domain-chip"><span>09</span>Public Policy</div>
+      <div class="domain-chip"><span>10</span>Chemistry</div>
+      <div class="domain-chip"><span>11</span>Data Science</div>
+      <div class="domain-chip"><span>12</span>Education</div>
+    </div>
+  </section>
+
+  <!-- ============ STATS (dark zone begins) ============ -->
+  <section class="section container zone-dark">
+    <div class="section-head reveal">
+      <p class="eyebrow">The dashboard</p>
+      <h2>Numbers on the dash</h2>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="num" data-count="10000" data-suffix="+">0</div><div class="label">Verified experts</div></div>
+      <div class="stat"><div class="num" data-count="50" data-suffix="+">0</div><div class="label">Domains covered</div></div>
+      <div class="stat"><div class="num" data-count="15" data-suffix="+">0</div><div class="label">Languages</div></div>
+      <div class="stat"><div class="num" data-count="1" data-suffix="M+">0</div><div class="label">Corrections delivered</div></div>
+    </div>
+  </section>
+
+  <!-- ============ TWO LANES ============ -->
+  <section class="section container zone-dark" id="lanes" style="padding-top:0;">
+    <div class="section-head reveal">
+      <p class="eyebrow">Pick your lane</p>
+      <h2>Two ways onto the track</h2>
+    </div>
+    <div class="lanes">
+      <div class="lane lane-labs reveal">
+        <div class="lane-tag">For AI labs</div>
+        <h3>Ship models that hold up</h3>
+        <p>Plug into a vetted network across every domain you need — project-based, fast to spin up, built to survive contact with real experts.</p>
+        <ul>
+          <li>On-demand access to 50+ verified domains</li>
+          <li>Structured evaluation, red-teaming, and SFT pipelines</li>
+          <li>Quality control built into every handoff</li>
+        </ul>
+        <a href="#apply" class="btn btn-outline-light">Talk to our team</a>
+      </div>
+      <div class="lane lane-experts reveal">
+        <div class="lane-tag">For experts</div>
+        <h3>Turn judgment into income</h3>
+        <p>Pick projects in your domain, work on your own schedule, and get paid for the expertise you already spent years building.</p>
+        <ul>
+          <li>Flexible, fully remote, project-based work</li>
+          <li>No fixed hours or minimum commitment</li>
+          <li>Paid per contribution, reviewed by peers</li>
+        </ul>
+        <a href="#apply" class="btn btn-outline-light">Browse projects</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIAL ============ -->
+  <section class="section container zone-dark">
+    <div class="testimonial reveal">
+      <div class="mark">"</div>
+      <blockquote>I spent a decade practicing medicine before I ever corrected a model. Turns out the hardest part of the job translates perfectly — knowing exactly where the reasoning goes wrong.</blockquote>
+      <cite>— Contributor, Clinical Medicine</cite>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="section container zone-dark" id="apply" style="padding-top:0;">
+    <div class="cta-panel reveal">
+      <h2>Ready to take<br>the wheel?</h2>
+      <p>Join the experts training the models that will define the next decade of AI.</p>
+      <div class="btn-row">
+        <a href="#" class="btn btn-solid-light">Apply as an expert</a>
+        <a href="#" class="btn btn-outline-light">Partner with Mindrift</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="container zone-dark">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a href="#top" class="logo">
+        <svg class="logo-wheel" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="12" r="3" fill="var(--ember)"/>
+          <path d="M12 2.5V6M12 18V21.5M2.5 12H6M18 12H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Mindrift
+      </a>
+      <p>Human expertise. Machine precision.</p>
+    </div>
+    <div class="foot-col"><h4>Platform</h4><a href="#how">How it works</a><a href="#domains">Domains</a><a href="#">Security</a></div>
+    <div class="foot-col"><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Blog</a></div>
+    <div class="foot-col"><h4>Experts</h4><a href="#apply">Apply</a><a href="#">FAQ</a><a href="#">Community</a></div>
+    <div class="foot-col"><h4>Legal</h4><a href="#">Terms</a><a href="#">Privacy</a></div>
+  </div>
+  <div class="foot-bottom">
+    <p>© 2026 MINDRIFT — CONCEPT DESIGN, UNOFFICIAL</p>
+    <p>MADE TO DRIFT, NOT TO SKID</p>
+  </div>
+</footer>
+
+<a class="chat-bubble" href="#apply" aria-label="Contact Mindrift">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 1 3.5 6.6L4 20l1.2-3.6A7.96 7.96 0 0 1 4 12Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
