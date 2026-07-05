@@ -108,6 +108,7 @@
             <input type="hidden" name="_subject" value="New BYCYCLE contact form submission">
             <input type="hidden" name="_template" value="table">
             <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="thankyou.html">
             <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
 
             <div class="form-grid">
@@ -202,8 +203,7 @@
     })
     .then(function(res){ return res.json(); })
     .then(function(){
-      form.style.display = 'none';
-      document.getElementById('successMsg').classList.add('show');
+      window.location.href = 'thankyou.html';
     })
     .catch(function(){
       btn.disabled = false;
