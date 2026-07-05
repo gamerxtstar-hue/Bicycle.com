@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Contact — BYCYCLE</title>
+<meta name="description" content="Get in touch with BYCYCLE — email purchase@bycycle.com or call +1 (415) 555-0142.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0A0C'/%3E%3Ccircle cx='9' cy='22' r='5' stroke='%23B6FF3C' stroke-width='2' fill='none'/%3E%3Ccircle cx='23' cy='22' r='5' stroke='%23B6FF3C' stroke-width='2' fill='none'/%3E%3Cpath d='M9 22l6-11h5l3 11M15 11l3 5' stroke='%23E4E7EC' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.contact-hero{padding:150px 0 50px;}
+.contact-layout{display:grid;grid-template-columns:0.9fr 1.3fr;gap:56px;padding-bottom:110px;align-items:start;}
+.info-card{border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:18px;}
+.info-card .lbl{font-family:var(--font-mono);font-size:.72rem;color:var(--volt);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:block;}
+.info-card .val{font-family:var(--font-display);font-size:1.25rem;font-weight:700;}
+.info-card .val a:hover{color:var(--volt);}
+.info-card .sub{font-size:.82rem;color:var(--text-dim);margin-top:6px;}
+.hours-row{display:flex;justify-content:space-between;font-size:.86rem;padding:8px 0;border-bottom:1px solid var(--border);color:var(--text-muted);}
+.hours-row span:last-child{color:var(--text);}
+.contact-form-panel{border:1px solid var(--border);border-radius:18px;padding:40px;background:var(--surface);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;}
+.field label{font-family:var(--font-mono);font-size:.74rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field select,.field textarea{padding:12px 14px;border-radius:10px;background:var(--bg-1);border:1px solid var(--border-strong);color:var(--text);font-family:var(--font-body);font-size:.9rem;}
+.field textarea{min-height:130px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--volt);}
+.success-msg{display:none;text-align:center;padding:40px 0;}
+.success-msg.show{display:block;}
+.hp{position:absolute;left:-9999px;opacity:0;}
+@media (max-width:900px){
+  .nav-links,.nav-cta .btn{display:none;}
+  .nav-toggle{display:flex;}
+  .contact-layout{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="bg-fixed" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="container">
+    <a href="index.html" class="logo" aria-label="BYCYCLE home">BYCYCLE<span>.</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="shop.html">Shop</a>
+      <a href="index.html#tech">Technology</a>
+      <a href="index.html#why">Why Us</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="cart.html" class="cart-icon" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.4a2 2 0 002 1.6h8.2a2 2 0 002-1.6L21 8H6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="cart-badge">0</span>
+      </a>
+      <a href="shop.html" class="btn btn-primary">Shop Now</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-panel" id="mobilePanel">
+  <a href="shop.html">Shop</a>
+  <a href="index.html#tech">Technology</a>
+  <a href="index.html#why">Why Us</a>
+  <a href="contact.html">Contact</a>
+  <a href="shop.html" class="btn btn-primary">Shop Now</a>
+</div>
+
+<main id="main">
+  <section class="contact-hero">
+    <div class="container">
+      <div class="eyebrow">Get in touch</div>
+      <h1 style="font-size:clamp(2rem,4.2vw,3rem);max-width:600px;">Questions about a build? We're a quick message away.</h1>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="container contact-layout">
+      <div class="reveal in">
+        <div class="info-card">
+          <span class="lbl">Email</span>
+          <div class="val"><a href="mailto:purchase@bycycle.com">purchase@bycycle.com</a></div>
+          <p class="sub">We reply within 1 business day.</p>
+        </div>
+        <div class="info-card">
+          <span class="lbl">Phone</span>
+          <div class="val"><a href="tel:+14155550142">+1 (415) 555-0142</a></div>
+          <p class="sub">Mon–Fri, 9am–6pm PT.</p>
+        </div>
+        <div class="info-card">
+          <span class="lbl">Store Hours</span>
+          <div class="hours-row"><span>Monday – Friday</span><span>9:00 – 18:00</span></div>
+          <div class="hours-row"><span>Saturday</span><span>10:00 – 16:00</span></div>
+          <div class="hours-row" style="border-bottom:none;"><span>Sunday</span><span>Closed</span></div>
+        </div>
+      </div>
+
+      <div class="reveal in">
+        <div class="contact-form-panel">
+          <h3 style="margin-bottom:26px;font-size:1.2rem;">Send us a message</h3>
+
+          <form id="contactForm" action="https://formsubmit.co/purchase@bycycle.com" method="POST">
+            <input type="hidden" name="_subject" value="New BYCYCLE contact form submission">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+
+            <div class="form-grid">
+              <div class="field"><label>Full Name</label><input type="text" name="Name" required></div>
+              <div class="field"><label>Email</label><input type="email" name="Email" required></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>Phone (optional)</label><input type="tel" name="Phone"></div>
+              <div class="field">
+                <label>Topic</label>
+                <select name="Topic">
+                  <option>General Question</option>
+                  <option>Order Status</option>
+                  <option>Warranty Claim</option>
+                  <option>Wholesale / Partnership</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>Message</label><textarea name="Message" required placeholder="How can we help?"></textarea></div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:15px;">Send Message <span class="btn-arrow">→</span></button>
+            <p style="font-size:.76rem;color:var(--text-dim);margin-top:14px;text-align:center;">Sent directly to our team via FormSubmit.</p>
+          </form>
+
+          <div class="success-msg" id="successMsg">
+            <h3 style="margin-bottom:10px;">Message sent.</h3>
+            <p>Thanks for reaching out — we'll get back to you shortly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">BYCYCLE<span>.</span></a>
+        <p>Precision bicycles with aerospace-grade alloy frames and a hand-finished metallic black shell.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <ul><li><a href="product.html?id=urban">Urban</a></li><li><a href="product.html?id=trail">Trail</a></li><li><a href="product.html?id=race">Race</a></li><li><a href="product.html?id=fold">Fold</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul><li><a href="index.html#why">Why Us</a></li><li><a href="index.html#tech">Technology</a></li><li><a href="contact.html">Contact</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <ul><li><a href="mailto:purchase@bycycle.com">purchase@bycycle.com</a></li><li><a href="tel:+14155550142">+1 (415) 555-0142</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 BYCYCLE. All rights reserved.</p>
+      <div class="legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/cart.js"></script>
+<script>
+(function(){
+  "use strict";
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function(){ nav.classList.toggle('scrolled', window.scrollY > 30); });
+  var toggle = document.getElementById('navToggle');
+  var panel = document.getElementById('mobilePanel');
+  toggle.addEventListener('click', function(){
+    var open = panel.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open);
+  });
+  panel.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ panel.classList.remove('open'); toggle.classList.remove('open'); });
+  });
+
+  document.getElementById('contactForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var form = e.target;
+    var btn = form.querySelector('button[type="submit"]');
+    var fd = new FormData(form);
+    var payload = {};
+    fd.forEach(function(v,k){ payload[k] = v; });
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    fetch('https://formsubmit.co/ajax/purchase@bycycle.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(){
+      form.style.display = 'none';
+      document.getElementById('successMsg').classList.add('show');
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+      alert('Something went wrong sending your message. Please try again or email us directly.');
+    });
+  });
+})();
+</script>
+</body>
+</html>
