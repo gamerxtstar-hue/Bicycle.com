@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Checkout — BYCYCLE</title>
+<meta name="description" content="Complete your BYCYCLE order.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0A0C'/%3E%3Ccircle cx='9' cy='22' r='5' stroke='%23B6FF3C' stroke-width='2' fill='none'/%3E%3Ccircle cx='23' cy='22' r='5' stroke='%23B6FF3C' stroke-width='2' fill='none'/%3E%3Cpath d='M9 22l6-11h5l3 11M15 11l3 5' stroke='%23E4E7EC' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.checkout-hero{padding:150px 0 30px;}
+.checkout-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:48px;align-items:start;padding-bottom:120px;}
+.form-section{margin-bottom:36px;}
+.form-section h3{font-size:1.05rem;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.form-section h3 .step-num{width:26px;height:26px;border-radius:50%;background:var(--volt);color:#0A0A0C;font-family:var(--font-mono);font-size:.78rem;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.field label{font-family:var(--font-mono);font-size:.74rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field select{padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border-strong);color:var(--text);font-family:var(--font-body);font-size:.9rem;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--volt);}
+.pay-options{display:flex;flex-direction:column;gap:12px;}
+.pay-option{display:flex;align-items:center;gap:12px;padding:16px 18px;border:1px solid var(--border-strong);border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s;}
+.pay-option:hover{border-color:var(--metal-lt);}
+.pay-option.active{border-color:var(--volt);background:rgba(182,255,60,.06);}
+.pay-option input{accent-color:var(--volt);}
+.card-fields{display:none;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+.card-fields.show{display:grid;}
+.demo-note{font-size:.78rem;color:var(--text-dim);margin-top:14px;padding:12px 16px;border:1px dashed var(--border-strong);border-radius:10px;}
+.summary-card{border:1px solid var(--border);border-radius:18px;padding:30px;background:var(--surface);position:sticky;top:120px;}
+.mini-item{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;padding:10px 0;border-bottom:1px solid var(--border);color:var(--text-muted);}
+.summary-row{display:flex;justify-content:space-between;padding:10px 0;font-size:.92rem;color:var(--text-muted);}
+.summary-row.total{border-top:1px solid var(--border);margin-top:10px;padding-top:16px;font-size:1.1rem;color:var(--text);font-weight:700;font-family:var(--font-display);}
+.success-panel{text-align:center;padding:80px 0;}
+.success-panel .ring{width:80px;height:80px;border-radius:50%;background:rgba(182,255,60,.12);border:1px solid var(--volt);color:var(--volt);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.error-note{color:#ff6b6b;font-size:.82rem;margin-top:10px;display:none;}
+.error-note.show{display:block;}
+@media (max-width:900px){
+  .nav-links,.nav-cta .btn{display:none;}
+  .nav-toggle{display:flex;}
+  .checkout-layout{grid-template-columns:1fr;}
+  .form-grid,.card-fields{grid-template-columns:1fr;}
+  .summary-card{position:static;}
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="bg-fixed" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="container">
+    <a href="index.html" class="logo" aria-label="BYCYCLE home">BYCYCLE<span>.</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="shop.html">Shop</a>
+      <a href="index.html#tech">Technology</a>
+      <a href="index.html#why">Why Us</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="cart.html" class="cart-icon" aria-label="Cart">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 4h2l2.4 12.4a2 2 0 002 1.6h8.2a2 2 0 002-1.6L21 8H6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="cart-badge">0</span>
+      </a>
+      <a href="cart.html" class="btn btn-ghost">Back to Cart</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false"><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-panel" id="mobilePanel">
+  <a href="shop.html">Shop</a>
+  <a href="index.html#tech">Technology</a>
+  <a href="index.html#why">Why Us</a>
+  <a href="contact.html">Contact</a>
+  <a href="cart.html" class="btn btn-primary">Back to Cart</a>
+</div>
+
+<main id="main">
+  <section class="checkout-hero">
+    <div class="container">
+      <div class="eyebrow">Step 2 of 2</div>
+      <h1 style="font-size:clamp(2rem,4vw,2.8rem);">Checkout</h1>
+    </div>
+  </section>
+
+  <section style="padding-top:10px;">
+    <div class="container" id="checkoutContainer">
+      <!-- filled by JS -->
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">BYCYCLE<span>.</span></a>
+        <p>Precision bicycles with aerospace-grade alloy frames and a hand-finished metallic black shell.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <ul><li><a href="product.html?id=urban">Urban</a></li><li><a href="product.html?id=trail">Trail</a></li><li><a href="product.html?id=race">Race</a></li><li><a href="product.html?id=fold">Fold</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul><li><a href="index.html#why">Why Us</a></li><li><a href="index.html#tech">Technology</a></li><li><a href="contact.html">Contact</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <ul><li><a href="mailto:purchase@bycycle.com">purchase@bycycle.com</a></li><li><a href="tel:+14155550142">+1 (415) 555-0142</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 BYCYCLE. All rights reserved.</p>
+      <div class="legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="catalog.js"></script>
+<script src="cart.js"></script>
+<script>
+(function(){
+  "use strict";
+  var container = document.getElementById('checkoutContainer');
+  var selectedPay = 'card';
+
+  function money(n){ return '$' + n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+  function renderForm(){
+    var items = Cart.getItems();
+    if(items.length === 0){
+      container.innerHTML =
+        '<div class="success-panel reveal in">' +
+          '<h3 style="margin-bottom:12px;">Your cart is empty</h3>' +
+          '<p style="margin-bottom:28px;">Add a model before checking out.</p>' +
+          '<a href="shop.html" class="btn btn-primary">Browse the Collection <span class="btn-arrow">→</span></a>' +
+        '</div>';
+      return;
+    }
+
+    var subtotal = Cart.subtotal();
+    var summaryItems = items.map(function(i){
+      var meta = [];
+      if(i.size) meta.push(i.size);
+      if(i.color) meta.push(i.color);
+      return '<div class="mini-item"><span>' + i.name + (meta.length ? ' (' + meta.join(', ') + ')' : '') + ' × ' + i.qty + '</span><span>' + money(i.price * i.qty) + '</span></div>';
+    }).join('');
+
+    container.innerHTML =
+      '<div class="checkout-layout">' +
+        '<form id="checkoutForm" novalidate>' +
+
+          '<div class="form-section reveal in">' +
+            '<h3><span class="step-num">1</span> Shipping Information</h3>' +
+            '<div class="form-grid">' +
+              '<div class="field"><label>Full Name</label><input type="text" name="Full Name" required></div>' +
+              '<div class="field"><label>Email</label><input type="email" name="Email" required></div>' +
+            '</div>' +
+            '<div class="field"><label>Street Address</label><input type="text" name="Address" required></div>' +
+            '<div class="form-grid">' +
+              '<div class="field"><label>City</label><input type="text" name="City" required></div>' +
+              '<div class="field"><label>State / Province</label><input type="text" name="State" required></div>' +
+            '</div>' +
+            '<div class="form-grid">' +
+              '<div class="field"><label>ZIP / Postal Code</label><input type="text" name="ZIP" required></div>' +
+              '<div class="field"><label>Country</label><input type="text" name="Country" value="United States" required></div>' +
+            '</div>' +
+            '<div class="field"><label>Phone</label><input type="tel" name="Phone" placeholder="+1 415 555 0100" required></div>' +
+          '</div>' +
+
+          '<div class="form-section reveal in">' +
+            '<h3><span class="step-num">2</span> Payment Method</h3>' +
+            '<div class="pay-options">' +
+              '<label class="pay-option active" data-pay="card"><input type="radio" name="pay" value="Card" checked> Credit / Debit Card</label>' +
+              '<label class="pay-option" data-pay="upi"><input type="radio" name="pay" value="UPI"> UPI</label>' +
+              '<label class="pay-option" data-pay="cod"><input type="radio" name="pay" value="Cash on Delivery"> Cash on Delivery</label>' +
+            '</div>' +
+            '<div class="card-fields show" id="cardFields">' +
+              '<div class="field" style="grid-column:1/-1;"><label>Card Number</label><input type="text" placeholder="4242 4242 4242 4242" maxlength="19"></div>' +
+              '<div class="field"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"></div>' +
+              '<div class="field"><label>CVC</label><input type="text" placeholder="123" maxlength="4"></div>' +
+            '</div>' +
+            '<p class="demo-note">This is a portfolio demo storefront — no real payment is processed and no card data is transmitted or stored. Order details below are sent only as a lead/notification email.</p>' +
+          '</div>' +
+
+          '<button type="submit" class="btn btn-primary" id="placeOrderBtn" style="width:100%;justify-content:center;padding:16px;">Place Order — ' + money(subtotal) + ' <span class="btn-arrow">→</span></button>' +
+          '<p class="error-note" id="errorNote">Something went wrong sending your order. Please check your details and try again, or email us directly.</p>' +
+        '</form>' +
+
+        '<div class="summary-card reveal in">' +
+          '<h3 style="margin-bottom:18px;">Order Summary</h3>' +
+          summaryItems +
+          '<div class="summary-row" style="margin-top:14px;"><span>Subtotal</span><span>' + money(subtotal) + '</span></div>' +
+          '<div class="summary-row"><span>Shipping</span><span>Free</span></div>' +
+          '<div class="summary-row total"><span>Total</span><span>' + money(subtotal) + '</span></div>' +
+        '</div>' +
+      '</div>';
+
+    document.querySelectorAll('.pay-option').forEach(function(opt){
+      opt.addEventListener('click', function(){
+        document.querySelectorAll('.pay-option').forEach(function(o){ o.classList.remove('active'); });
+        opt.classList.add('active');
+        var cardFields = document.getElementById('cardFields');
+        cardFields.classList.toggle('show', opt.dataset.pay === 'card');
+      });
+    });
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var form = e.target;
+      var btn = document.getElementById('placeOrderBtn');
+      var errorNote = document.getElementById('errorNote');
+      errorNote.classList.remove('show');
+
+      var fd = new FormData(form);
+      var payload = {};
+      fd.forEach(function(value, key){ payload[key] = value; });
+      payload['_subject'] = 'New BYCYCLE order';
+      payload['Order Items'] = items.map(function(i){
+        return i.name + (i.size ? ' (' + i.size + (i.color ? ', ' + i.color : '') + ')' : '') + ' x' + i.qty + ' — ' + money(i.price * i.qty);
+      }).join(' | ');
+      payload['Order Total'] = money(subtotal);
+
+      btn.disabled = true;
+      btn.textContent = 'Placing order…';
+
+      fetch('https://formsubmit.co/ajax/purchase@bycycle.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(){
+        Cart.clear();
+        renderSuccess(payload);
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.textContent = 'Place Order — ' + money(subtotal);
+        errorNote.classList.add('show');
+      });
+    });
+  }
+
+  function renderSuccess(payload){
+    container.innerHTML =
+      '<div class="success-panel reveal in">' +
+        '<div class="ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4 12l6 6L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<h2 style="margin-bottom:14px;">Order placed, ' + (payload['Full Name'] ? payload['Full Name'].split(' ')[0] : 'rider') + '.</h2>' +
+        '<p style="max-width:440px;margin:0 auto 8px;">A confirmation has been sent to our team. You\'ll hear from us at <strong style="color:var(--text);">' + (payload['Email'] || '') + '</strong> shortly.</p>' +
+        '<p style="max-width:440px;margin:0 auto 32px;font-size:.82rem;">Order total: ' + payload['Order Total'] + '</p>' +
+        '<a href="shop.html" class="btn btn-primary">Continue Shopping <span class="btn-arrow">→</span></a>' +
+      '</div>';
+  }
+
+  renderForm();
+
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function(){ nav.classList.toggle('scrolled', window.scrollY > 30); });
+  var toggle = document.getElementById('navToggle');
+  var panel = document.getElementById('mobilePanel');
+  toggle.addEventListener('click', function(){
+    var open = panel.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open);
+  });
+  panel.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ panel.classList.remove('open'); toggle.classList.remove('open'); });
+  });
+})();
+</script>
+</body>
+</html>
