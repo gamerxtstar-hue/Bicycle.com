@@ -15,8 +15,8 @@
 .cart-layout{display:grid;grid-template-columns:1.6fr 1fr;gap:48px;align-items:start;padding-bottom:120px;}
 .cart-items{border-top:1px solid var(--border);}
 .cart-row{display:grid;grid-template-columns:70px 1fr auto auto auto;gap:20px;align-items:center;padding:24px 0;border-bottom:1px solid var(--border);}
-.cart-thumb{width:70px;height:70px;border-radius:12px;background:var(--bg-1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
-.cart-thumb svg{width:46px;}
+.cart-thumb{width:70px;height:70px;border-radius:12px;background:var(--bg-1);border:1px solid var(--border);overflow:hidden;flex-shrink:0;}
+.cart-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 .cart-name{font-family:var(--font-display);font-size:1.02rem;font-weight:700;margin-bottom:4px;}
 .cart-meta{font-size:.8rem;color:var(--text-dim);}
 .cart-meta button{color:var(--text-dim);text-decoration:underline;margin-top:6px;font-size:.78rem;}
@@ -127,9 +127,9 @@
 
   function money(n){ return '$' + n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
-  function iconFor(id){
+  function photoFor(id){
     var p = CATALOG[id];
-    return p ? p.icon : '';
+    return p ? p.photo : '';
   }
 
   function render(){
@@ -153,7 +153,7 @@
       if(item.color) meta.push('Finish: ' + item.color);
       return (
         '<div class="cart-row reveal in" data-key="' + item.key + '">' +
-          '<div class="cart-thumb"><svg viewBox="0 0 200 90" fill="none">' + iconFor(item.id) + '</svg></div>' +
+          '<div class="cart-thumb"><img src="' + photoFor(item.id) + '" alt="' + item.name + '"></div>' +
           '<div>' +
             '<div class="cart-name">' + item.name + '</div>' +
             '<div class="cart-meta">' + meta.join(' · ') + '</div>' +
