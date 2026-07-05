@@ -15,7 +15,10 @@
 .crumbs a{color:var(--text-muted);}
 .crumbs a:hover{color:var(--volt);}
 .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;padding:48px 0 100px;align-items:start;}
-.product-visual{position:sticky;top:120px;aspect-ratio:1/0.7;border-radius:22px;border:1px solid var(--border);background:radial-gradient(circle at 30% 20%, rgba(154,160,172,.12), transparent 60%),var(--bg-1);display:flex;align-items:center;justify-content:center;padding:40px;}
+.product-visual{position:sticky;top:120px;border-radius:22px;border:1px solid var(--border);background:var(--bg-1);overflow:hidden;}
+.product-visual img{width:100%;height:100%;object-fit:cover;display:block;min-height:360px;}
+.product-visual .photo-credit{position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,.5);padding:3px 8px;border-radius:6px;}
+.product-visual-wrap{position:relative;}
 .product-info .model-badge{font-family:var(--font-mono);font-size:.74rem;color:var(--volt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;display:block;}
 .product-info h1{font-size:clamp(1.8rem,3.6vw,2.6rem);margin-bottom:14px;}
 .product-price{font-family:var(--font-display);font-size:1.7rem;font-weight:700;margin-bottom:20px;}
@@ -140,7 +143,7 @@
   var id = params.get('id') || 'urban';
   var product = CATALOG[id] || CATALOG.urban;
   var selectedSize = product.sizes[0];
-  var selectedColor = product.colors[0];
+  var selectedColor = COLOR_PALETTE[0];
   var qty = 1;
 
   document.title = product.name + ' — BYCYCLE';
@@ -151,9 +154,9 @@
       return '<button type="button" class="option-pill' + (s === selectedSize ? ' active' : '') + '" data-size="' + s + '">' + s + '</button>';
     }).join('');
   }
-  function colorsHtml(){
-    return product.colors.map(function(c){
-      return '<button type="button" class="option-pill' + (c === selectedColor ? ' active' : '') + '" data-color="' + c + '">' + c + '</button>';
+  function swatchesHtml(){
+    return COLOR_PALETTE.map(function(c, i){
+      return '<button type="button" class="swatch' + (c.hex === selectedColor.hex ? ' selected' : '') + '" style="background:' + c.hex + ';" data-hex="' + c.hex + '" data-name="' + c.name + '" aria-label="' + c.name + '" title="' + c.name + '"></button>';
     }).join('');
   }
   function specsHtml(){
@@ -162,10 +165,22 @@
     }).join('');
   }
 
+  function applyPreviewColor(hex){
+    var stage = document.getElementById('previewStage');
+    if(!stage) return;
+    stage.querySelectorAll('path, circle').forEach(function(el){
+      el.style.stroke = hex;
+      if(el.getAttribute('fill-opacity')) el.style.fill = hex;
+    });
+  }
+
   function render(){
     document.getElementById('productLayout').innerHTML =
-      '<div class="product-visual reveal in">' +
-        '<svg width="100%" viewBox="0 0 200 90" fill="none">' + product.icon + '</svg>' +
+      '<div class="product-visual-wrap reveal in">' +
+        '<div class="product-visual">' +
+          '<img src="' + product.photo + '" alt="' + product.name + '">' +
+          '<span class="photo-credit">' + product.photoCredit + '</span>' +
+        '</div>' +
       '</div>' +
       '<div class="product-info reveal in">' +
         '<span class="model-badge">' + product.badge + ' Series</span>' +
@@ -174,9 +189,20 @@
         '<p class="product-desc">' + product.description + '</p>' +
 
         '<div class="option-group"><span class="option-label">Frame Size</span><div class="option-pills" id="sizePills">' + sizesHtml() + '</div></div>' +
-        '<div class="option-group"><span class="option-label">Finish</span><div class="option-pills" id="colorPills">' + colorsHtml() + '</div></div>' +
 
-        '<div class="qty-row">' +
+        '<div class="color-customizer">' +
+          '<div class="color-customizer-head">' +
+            '<h4>Choose a finish — 24 colors</h4>' +
+            '<span class="current-color-name" id="currentColorName">' + selectedColor.name + '</span>' +
+          '</div>' +
+          '<div class="preview-stage" id="previewStage">' +
+            '<svg viewBox="0 0 300 160" fill="none">' + BIKE_SILHOUETTE + '</svg>' +
+          '</div>' +
+          '<div class="swatch-grid" id="swatchGrid">' + swatchesHtml() + '</div>' +
+          '<p style="font-size:.76rem;color:var(--text-dim);margin-top:16px;">Hover a swatch to preview it live. Click to select it for your order. Preview shown on a reference frame — the photo above shows the standard finish.</p>' +
+        '</div>' +
+
+        '<div class="qty-row" style="margin-top:26px;">' +
           '<span class="option-label" style="margin-bottom:0;">Quantity</span>' +
           '<div class="qty-control">' +
             '<button type="button" id="qtyMinus">−</button><span id="qtyVal">1</span><button type="button" id="qtyPlus">+</button>' +
@@ -191,18 +217,38 @@
         '<div class="spec-table">' + specsHtml() + '</div>' +
       '</div>';
 
+    applyPreviewColor(selectedColor.hex);
+
     document.getElementById('sizePills').addEventListener('click', function(e){
       var btn = e.target.closest('.option-pill'); if(!btn) return;
       selectedSize = btn.dataset.size;
       document.querySelectorAll('#sizePills .option-pill').forEach(function(p){ p.classList.remove('active'); });
       btn.classList.add('active');
     });
-    document.getElementById('colorPills').addEventListener('click', function(e){
-      var btn = e.target.closest('.option-pill'); if(!btn) return;
-      selectedColor = btn.dataset.color;
-      document.querySelectorAll('#colorPills .option-pill').forEach(function(p){ p.classList.remove('active'); });
-      btn.classList.add('active');
+
+    var swatchGrid = document.getElementById('swatchGrid');
+    var nameLabel = document.getElementById('currentColorName');
+
+    // Hover = live preview only, doesn't change the selection
+    swatchGrid.addEventListener('mouseover', function(e){
+      var btn = e.target.closest('.swatch'); if(!btn) return;
+      applyPreviewColor(btn.dataset.hex);
+      nameLabel.textContent = btn.dataset.name;
     });
+    swatchGrid.addEventListener('mouseleave', function(){
+      applyPreviewColor(selectedColor.hex);
+      nameLabel.textContent = selectedColor.name;
+    });
+    // Click = lock in the selection (also used for keyboard/touch users)
+    swatchGrid.addEventListener('click', function(e){
+      var btn = e.target.closest('.swatch'); if(!btn) return;
+      selectedColor = { hex: btn.dataset.hex, name: btn.dataset.name };
+      swatchGrid.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('selected'); });
+      btn.classList.add('selected');
+      applyPreviewColor(selectedColor.hex);
+      nameLabel.textContent = selectedColor.name;
+    });
+
     document.getElementById('qtyMinus').addEventListener('click', function(){
       qty = Math.max(1, qty - 1);
       document.getElementById('qtyVal').textContent = qty;
@@ -212,8 +258,8 @@
       document.getElementById('qtyVal').textContent = qty;
     });
     document.getElementById('addToCartBtn').addEventListener('click', function(){
-      Cart.addItem(product, qty, { size: selectedSize, color: selectedColor });
-      showToast(product.name + ' added to cart');
+      Cart.addItem(product, qty, { size: selectedSize, color: selectedColor.name });
+      showToast(product.name + ' (' + selectedColor.name + ') added to cart');
     });
   }
 
@@ -225,7 +271,7 @@
       div.className = 'glass model-card reveal in';
       div.innerHTML =
         '<span class="model-badge">' + p.badge + '</span>' +
-        '<svg class="model-svg" viewBox="0 0 200 90" fill="none">' + p.icon + '</svg>' +
+        '<img class="model-photo" src="' + p.photo + '" alt="' + p.name + '" loading="lazy">' +
         '<h3>' + p.name + '</h3>' +
         '<p>' + p.tagline + '</p>' +
         '<div class="model-price">$' + p.price.toLocaleString() + ' <span>Free shipping included</span></div>' +
