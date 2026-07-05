@@ -134,6 +134,23 @@ section{position:relative;z-index:2;padding:120px 0;}
 .model-card:hover{transform:translateY(-6px);border-color:var(--border-strong);}
 .model-badge{font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
 .model-svg{width:100%;height:90px;margin-bottom:20px;}
+.model-photo{width:100%;height:170px;object-fit:cover;border-radius:12px;margin-bottom:20px;background:var(--bg-1);}
+.photo-credit{font-size:.68rem;color:var(--text-dim);opacity:.7;margin-top:6px;}
+
+/* --- Color customizer (product page) --- */
+.color-customizer{border:1px solid var(--border);border-radius:16px;padding:26px;background:var(--surface);margin-top:8px;}
+.color-customizer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.color-customizer-head h4{font-size:.95rem;}
+.color-customizer-head .current-color-name{font-family:var(--font-mono);font-size:.78rem;color:var(--volt);}
+.preview-stage{display:flex;align-items:center;justify-content:center;height:130px;border-radius:12px;background:var(--bg-1);margin-bottom:20px;}
+.preview-stage svg{width:70%;height:auto;}
+.preview-stage svg path,.preview-stage svg circle{transition:stroke .12s linear, fill .12s linear;}
+.swatch-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;}
+.swatch{width:100%;aspect-ratio:1/1;border-radius:8px;border:2px solid transparent;cursor:pointer;position:relative;transition:transform .15s var(--ease), border-color .15s;}
+.swatch:hover,.swatch:focus-visible{transform:scale(1.12);z-index:2;}
+.swatch.selected{border-color:var(--text);box-shadow:0 0 0 2px var(--bg);}
+.swatch.selected::after{content:"";position:absolute;inset:0;margin:auto;width:8px;height:8px;border-radius:50%;background:#fff;mix-blend-mode:difference;}
+@media (max-width:560px){.swatch-grid{grid-template-columns:repeat(6,1fr);}}
 .model-card h3{margin-bottom:6px;}
 .model-card p{font-size:.86rem;margin-bottom:18px;}
 .model-price{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:18px;}
